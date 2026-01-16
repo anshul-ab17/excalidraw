@@ -8,6 +8,9 @@
     "dev": "node dist/index.js",
     "start": "npx tsc -b && node dist"
   },
+    "dependencies": {
+    "@repo/typescript-config": "workspace:*"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",

@@ -18,9 +18,17 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
 
-  apps/backend: {}
+  apps/backend:
+    dependencies:
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../../packages/typescript-config
 
-  apps/socket: {}
+  apps/socket:
+    dependencies:
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../../packages/typescript-config
 
   apps/web:
     dependencies:
