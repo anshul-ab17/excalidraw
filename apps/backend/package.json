@@ -4,12 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build":"npx tsc -b",
+    "build": "npx tsc -b",
     "dev": "node dist/index.js",
     "start": "npx tsc -b && node dist"
   },
-    "dependencies": {
-    "@repo/typescript-config": "workspace:*"
+  "dependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "next-themes": "^0.4.6"
   },
   "keywords": [],
   "author": "",
