@@ -7,62 +7,31 @@ import { BottomRightHelp } from "@/components/editor/bottom-right-help"
 
 export default function Home() {
   return (
-    <main className="relative h-screen w-screen bg-background text-foreground overflow-hidden">
+    <main className="relative h-screen w-screen overflow-hidden bg-background text-foreground">
+      <div className="absolute inset-0">
+        <Canvas />
+      </div>
 
-
-        <div dir="ltr">
-          <div className="relative size-32 ...">
-            <div className="absolute start-0 top-0 size-14 ...">
-            <TopLeftMenu />
-            </div>
-          </div>
+      <div className="pointer-events-none absolute top-0 left-0 right-0 flex items-center justify-between px-4 py-3">
+        <div className="pointer-events-auto">
+          <TopLeftMenu />
         </div>
-
-        <div dir="">
-          <div className="relative size-32 ...">
-            <div className="absolute start-0 top-0 size-14 ...">
-      <TopCenterToolbar />
-            </div>
-          </div> 
-        </div>       
-        <div dir="">
-
-
-        <div dir="rtl">
-          <div className="relative size-32 ...">
-            <div className="absolute start-0 top-0 size-14 ...">
-              <TopRightActions />
-            </div>
-          </div> 
+        <div className="pointer-events-auto">
+          <TopCenterToolbar />
         </div>
-
-        <div className="relative size-32 ...">
-            <div className="absolute start-0 top-0 size-14 ...">
-              <Canvas />
-            </div>
-          </div> 
+        <div className="pointer-events-auto">
+          <TopRightActions />
         </div>
- 
+      </div>
 
-        <div dir="ltr">
-          <div className="relative size-32 ...">
-            <div className="absolute start-0 top-0 size-14 ...">
-               <BottomLeftZoom />
-            </div>
-          </div>
+      <div className="pointer-events-none absolute bottom-0 left-0 right-0 flex items-center justify-between px-4 py-3">
+        <div className="pointer-events-auto">
+          <BottomLeftZoom />
         </div>
-
-
-        <div dir="rtl">
-          <div className="relative size-32 ...">
-            <div className="absolute start-0 top-0 size-14 ...">
-              <BottomRightHelp />
-            </div>
-          </div> 
+        <div className="pointer-events-auto">
+          <BottomRightHelp />
         </div>
-
-
-
+      </div>
     </main>
   )
 }
