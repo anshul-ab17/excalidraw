@@ -4,12 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-     "build":"npx tsc -b",
+    "build": "npx tsc -b",
     "dev": "node dist/index.js",
     "start": "npx tsc -b && node dist"
   },
   "dependencies": {
-    "@repo/typescript-config": "workspace:*"
+    "@repo/typescript-config": "workspace:*",
+    "@types/ws": "^8.18.1",
+    "ws": "^8.19.0"
   },
   "keywords": [],
   "author": "",
