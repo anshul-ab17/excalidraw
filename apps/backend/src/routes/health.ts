@@ -1,7 +1,9 @@
-import {  Router } from "express";
+    import {  Router } from "express";
 
-const router =Router();
+    const router:Router=Router();
 
-router.get("/health", async(req, res){
-    res.send("Ok")
-})
+    router.get("/", async(req, res) => {
+        res.send("Ok")
+    })
+
+    export default router;

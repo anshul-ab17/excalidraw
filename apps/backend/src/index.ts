@@ -1,24 +1,13 @@
-import express from "express";
+import express from "express"; 
+import healthRoute from "./routes/health"
 
 const app = express();
 const PORT = 3000;
 
 app.use(express.json());
- 
-app.get("/health", (req, res) => {
-  res.send("OK");
-});
- 
 
-app.post("/signup", (req, res)=> {
-
-})
-
-app.post("/signin", (req,res) =>{
-
-})
-
-
+app.use("/health",healthRoute)
+app.use("/", )
 
  
 
