@@ -8,10 +8,12 @@
     "dev": "node dist/index.js",
     "start": "npx tsc -b && node dist"
   },
-  "dependencies": {
-    "@repo/typescript-config": "workspace:*",
-    "@types/ws": "^8.18.1",
+  "dependencies": { 
     "ws": "^8.19.0"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/ws": "^8.18.1"
   },
   "keywords": [],
   "author": "",
