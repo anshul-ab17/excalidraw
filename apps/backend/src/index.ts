@@ -1,5 +1,7 @@
 import express from "express"; 
 import healthRoute from "./routes/health"
+import authRoute from "./routes/auth"
+
 
 const app = express();
 const PORT = 3000;
@@ -7,7 +9,7 @@ const PORT = 3000;
 app.use(express.json());
 
 app.use("/health",healthRoute)
-app.use("/", )
+app.use("/",authRoute )
 
  
 
