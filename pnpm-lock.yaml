@@ -30,9 +30,9 @@ importers:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
     devDependencies:
-      '@repo/common':
+      '@repo/common-in-backend':
         specifier: workspace:*
-        version: link:../../packages/common
+        version: link:../../packages/common-in-backend
       '@repo/typescript-config':
         specifier: workspace:*
         version: link:../../packages/typescript-config
@@ -52,9 +52,9 @@ importers:
         specifier: ^8.19.0
         version: 8.19.0
     devDependencies:
-      '@repo/common':
+      '@repo/common-in-backend':
         specifier: workspace:*
-        version: link:../../packages/common
+        version: link:../../packages/common-in-backend
       '@repo/typescript-config':
         specifier: workspace:*
         version: link:../../packages/typescript-config
@@ -141,7 +141,20 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
 
-  packages/common:
+  packages/common-global:
+    dependencies:
+      zod:
+        specifier: ^4.3.6
+        version: 4.3.6
+    devDependencies:
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      '@types/node':
+        specifier: ^22.15.3
+        version: 22.15.3
+
+  packages/common-in-backend:
     devDependencies:
       '@repo/typescript-config':
         specifier: workspace:*
@@ -2531,6 +2544,9 @@ packages:
   yocto-queue@0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
+
+  zod@4.3.6:
+    resolution: {integrity: sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg==}
 
 snapshots:
 
@@ -5005,3 +5021,5 @@ snapshots:
   ws@8.19.0: {}
 
   yocto-queue@0.1.0: {}
+
+  zod@4.3.6: {}
