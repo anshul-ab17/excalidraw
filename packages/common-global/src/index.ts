@@ -11,6 +11,6 @@ export const SignInSchema = z.object({
     password :z.string().min(8)
 })
 
-export const CreateroomSchema =z.object({
+export const CreateRoomSchema =z.object({
     name:z.string()
 })

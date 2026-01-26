@@ -30,6 +30,9 @@ importers:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
     devDependencies:
+      '@repo/common-global':
+        specifier: workspace:*
+        version: link:../../packages/common-global
       '@repo/common-in-backend':
         specifier: workspace:*
         version: link:../../packages/common-in-backend
@@ -52,6 +55,9 @@ importers:
         specifier: ^8.19.0
         version: 8.19.0
     devDependencies:
+      '@repo/common-global':
+        specifier: workspace:*
+        version: link:../../packages/common-global
       '@repo/common-in-backend':
         specifier: workspace:*
         version: link:../../packages/common-in-backend

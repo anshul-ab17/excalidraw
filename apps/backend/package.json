@@ -17,7 +17,8 @@
     "@repo/typescript-config": "workspace:*",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
-    "@repo/common-in-backend":"workspace:*"
+    "@repo/common-in-backend":"workspace:*",
+    "@repo/common-global":"workspace:*"
   },
   "keywords": [],
   "author": "",

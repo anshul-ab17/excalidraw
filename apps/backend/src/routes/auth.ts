@@ -2,28 +2,34 @@ import { Router, Request, Response } from "express";
 import { JWT_SECRET } from "@repo/common-in-backend/config";
 import jwt from "jsonwebtoken";
 import { middleware } from "./middleware";
+import { CreateRoomSchema, CreateUserSchema, SignInSchema } from "@repo/common-global/types";
+
 
 const router: Router = Router();
 
 router.post("/signup", async (req: Request, res: Response) => {
-  const { username, password } = req.body;
 
-  if (!username || !password) {
-    return res.status(400).json({
-      message: "Username and password are required"
-    });
+  const data= CreateUserSchema.safeParse(req.body);
+  if(!data.success){
+    res.json({
+      message:"Incorrect Credentials"
+    })
+    return;
   }
 
-  // hash password before saving
-  // save user to database
-
-  res.status(201).json({
-    id: username
-  });
+  res.json({
+    userId:"1344"
+  })
 });
 
 router.post("/signin", async (req: Request, res: Response) => {
-    
+    const data= SignInSchema.safeParse(req.body);
+    if(!data.success){
+      res.json({
+        message:"Incorrect Credentials"
+      })
+      return;
+    }
     const userId=1;
     const token = jwt.sign({
         userId
@@ -35,6 +41,13 @@ router.post("/signin", async (req: Request, res: Response) => {
 });
 
 router.post("/room", middleware, async(req , res) => {
+    const data= CreateRoomSchema.safeParse(req.body);
+    if(!data.success){
+      res.json({
+        message:"Incorrect Credentials"
+      })
+      return;
+    }
 
     res.json({
       roomId:333
