@@ -1,4 +1,7 @@
 import { Router, Request, Response } from "express";
+import { JWT_SECRET } from "./config";
+import jwt from "jsonwebtoken";
+import { middleware } from "./middleware";
 
 const router: Router = Router();
 
@@ -20,20 +23,22 @@ router.post("/signup", async (req: Request, res: Response) => {
 });
 
 router.post("/signin", async (req: Request, res: Response) => {
-  const { username, password } = req.body;
+    
+    const userId=1;
+    const token = jwt.sign({
+        userId
+    },JWT_SECRET)
 
-  if (!username || !password) {
-    return res.status(400).json({
-      message: "Username and password are required"
+    res.json({
+        token
     });
-  }
-
-  // find user in database
-  // compare hashed password
-
-  res.json({
-    message: "Signed in successfully"
-  });
 });
+
+router.post("/room", middleware, async(req , res) => {
+
+    res.json({
+      roomId:333
+    })
+})
 
 export default router;
