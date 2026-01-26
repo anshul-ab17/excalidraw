@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { JWT_SECRET } from "./config";
+import { JWT_SECRET } from "@repo/common/config";
 import jwt from "jsonwebtoken";
 import { middleware } from "./middleware";
 
