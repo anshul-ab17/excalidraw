@@ -1,36 +1,37 @@
+import "dotenv/config";
 import { WebSocketServer } from "ws";
 import { JWT_SECRET } from "@repo/common-in-backend/config";
-import jwt  from "jsonwebtoken"
+import jwt from "jsonwebtoken";
 
-const wss = new WebSocketServer({ port: 3000 });
+const PORT = Number(process.env.PORT) || 3001;
+const wss = new WebSocketServer({ port: PORT });
 
-wss.on("connection", function connection(ws, request){
-
+wss.on("connection", (ws, request) => {
   const url = request.url;
-  if(!url){
-    return;
-  }
-
-  const queryParam = new URLSearchParams(url.split('?')[1]);
-  const token = queryParam.get('token') || "";
-  const decode= jwt.verify(token,JWT_SECRET);
-
-
-  if(typeof decode =="string"){
+  if (!url) {
     ws.close();
     return;
   }
-  if(!decode || !decode.userId){
+
+  const queryParam = new URLSearchParams(url.split("?")[1]);
+  const token = queryParam.get("token") || "";
+
+  let decode: any;
+  try {
+    decode = jwt.verify(token, JWT_SECRET);
+  } catch {
     ws.close();
     return;
   }
-  ws.on("message", function message (data) {
-    ws.send('pong');
-  });
 
-  ws.on("close", () => {
-    // cleanup room
+  if (typeof decode === "string" || !decode?.userId) {
+    ws.close();
+    return;
+  }
+
+  ws.on("message", () => {
+    ws.send("pong");
   });
 });
 
-console.log("WS server running.");
+console.log(`WS server running on port ${PORT}`);
