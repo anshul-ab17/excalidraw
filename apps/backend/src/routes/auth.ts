@@ -3,7 +3,7 @@ import { JWT_SECRET } from "@repo/common-in-backend/config";
 import jwt from "jsonwebtoken";
 import { middleware } from "./middleware";
 import { CreateRoomSchema, CreateUserSchema, SignInSchema } from "@repo/common-global/types";
-
+import {prisma} from "@repo/db/client";
 
 const router: Router = Router();
 
