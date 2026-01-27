@@ -7,15 +7,31 @@ import {prisma} from "@repo/db/client";
 
 const router: Router = Router();
 
+
 router.post("/signup", async (req: Request, res: Response) => {
 
-  const data= CreateUserSchema.safeParse(req.body);
-  if(!data.success){
+  const parsedData= CreateUserSchema.safeParse(req.body);
+  if(!parsedData.success){
     res.json({
       message:"Incorrect Credentials"
     })
     return;
   }
+
+  try {
+    await prisma.user.create({
+      data:{
+        email:parsedData.data?.username,
+        password:parsedData.data.password,
+        name:parsedData.data.name
+      }
+    })
+  } catch(e) {
+    res.status(411).json({
+      message:"user already exist"
+    })
+  }
+
 
   res.json({
     userId:"1344"
