@@ -1,9 +1,9 @@
 import { Router, Request, Response } from "express";
 import { JWT_SECRET } from "@repo/common-in-backend/config";
 import jwt from "jsonwebtoken";
-import { middleware } from "./middleware";
-import { CreateRoomSchema, CreateUserSchema, SignInSchema } from "@repo/common-global/types";
-import {prisma} from "@repo/db/client";
+import { middleware } from "./middleware.js";
+import { CreateRoomSchema, CreateUserSchema, SignInSchema } from "@repo/common-in-apps/types";
+import { prismaClient} from "@repo/db/client"
 
 const router: Router = Router();
 router.post("/signup", async (req: Request, res: Response) => {
@@ -17,11 +17,11 @@ router.post("/signup", async (req: Request, res: Response) => {
   }
 
   try {
-    await prisma.user.create({
+    await prismaClient.user.create({
       data:{
         email:parsedData.data?.username,
         password:parsedData.data.password,
-        name:parsedData.data.name
+        username:parsedData.data.username
       }
     })
     res.json({
