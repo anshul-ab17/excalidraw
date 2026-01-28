@@ -2,14 +2,18 @@
   "name": "socket",
   "version": "1.0.0",
   "description": "",
+  "type": "module",
   "main": "index.js",
   "scripts": {
-    "build": "npx tsc -b",
+    "build": "tsc -b",
     "dev": "node dist/index.js",
-    "start": "npx tsc -b && node dist"
+    "start": "tsc -b && node dist/index.js"
   },
-  "types": "module",
-  "module": "nodenext",
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "jsonwebtoken": "^9.0.3",
+    "ws": "^8.19.0"
+  },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
     "@repo/common-in-apps": "workspace:*",
@@ -18,9 +22,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^22.15.3",
     "@types/ws": "^8.18.1",
-    "dotenv": "^17.2.3",
-    "jsonwebtoken": "^9.0.3",
-    "ws": "^8.19.0"
+    "typescript": "^5.7.3"
   },
   "keywords": [],
   "author": "",

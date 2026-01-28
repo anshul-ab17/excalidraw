@@ -3,16 +3,23 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-    "scripts": {
+  "scripts": {
     "build": "npx tsc -b",
     "dev": "node dist/index.js",
     "start": "npx tsc -b && node dist"
   },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "jsonwebtoken": "^9.0.3",
+    "express": "^5.2.1"
+  },
   "devDependencies": {
+    "@repo/common-in-apps": "workspace:*",
+    "@repo/common-in-backend": "workspace:*",
+    "@repo/db": "workspace:*",
     "@repo/typescript-config": "workspace:*",
-    "@repo/db":"workspace:*",
-    "@repo/common-in-apps":"workspace:*",
-    "@repo/common-in-backend":"workspace:*"
+    "@types/express": "^5.0.6",
+    "@types/node": "^22.15.3"
   },
   "keywords": [],
   "author": "",
