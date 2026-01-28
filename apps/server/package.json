@@ -1,0 +1,19 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+    "scripts": {
+    "build": "npx tsc -b",
+    "dev": "node dist/index.js",
+    "start": "npx tsc -b && node dist"
+  },
+  "devDependencies": {
+    "@repo/db":"workspace:*",
+    "@repo/common-in-apps":"workspace:*",
+    "@repo/common-in-backend":"workspace:*"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
