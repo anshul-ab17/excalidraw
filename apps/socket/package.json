@@ -8,11 +8,19 @@
     "dev": "node dist/index.js",
     "start": "npx tsc -b && node dist"
   },
+  "types": "module",
+  "module": "nodenext",
   "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
     "@repo/common-in-apps": "workspace:*",
     "@repo/common-in-backend": "workspace:*",
     "@repo/db": "workspace:*",
-    "@types/node": "^22.15.3"
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^22.15.3",
+    "@types/ws": "^8.18.1",
+    "dotenv": "^17.2.3",
+    "jsonwebtoken": "^9.0.3",
+    "ws": "^8.19.0"
   },
   "keywords": [],
   "author": "",

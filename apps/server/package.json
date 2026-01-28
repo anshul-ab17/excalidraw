@@ -9,6 +9,7 @@
     "start": "npx tsc -b && node dist"
   },
   "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
     "@repo/db":"workspace:*",
     "@repo/common-in-apps":"workspace:*",
     "@repo/common-in-backend":"workspace:*"
