@@ -3,7 +3,10 @@
   "compilerOptions": {
     "types": ["node"],
     "rootDir": "src",
-    "outDir": "dist"
+    "outDir": "dist",
+    "module": "ESNext", // or "ES2020", "ES2022", etc.
+    "moduleResolution": "bundler", // or "node16", "nodenext"
+    "verbatimModuleSyntax": true
   },
   "include": ["src"]
 }
