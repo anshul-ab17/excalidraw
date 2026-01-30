@@ -16,34 +16,49 @@ router.post("/signup", async (req: Request, res: Response) => {
     return;
   }
   try {
-    await prismaClient.user.create({
+    const user = await prismaClient.user.create({
       data:{
         email:parsedData.data?.username,
+        //hashing the  password!
         password:parsedData.data.password,
         username:parsedData.data.username
       }
     })
     res.json({
-    userId:"1344"
+    userId:user.id
   })
   } catch(e) {
     res.status(411).json({
-      message:"user already exist"
+      message:"user already exist with that username"
     })
   }
 });
 
 router.post("/signin", async (req: Request, res: Response) => {
-    const data= SignInSchema.safeParse(req.body);
-    if(!data.success){
+    const parsedData= SignInSchema.safeParse(req.body);
+    if(!parsedData.success){
       res.json({
         message:"Incorrect Credentials"
       })
       return;
     }
-    const userId=1;
+
+    //compare hashed password
+    const user = await prismaClient.user.findFirst({
+      where:{
+        email:parsedData.data.username,
+        password:parsedData.data.password,
+      }
+    }) 
+
+    if(!user){
+      res.status(403).json({
+        message:"Not authorized!"
+      })
+      return;
+    }
     const token = jwt.sign({
-        userId
+        userId:user?.id
     },JWT_SECRET)
 
     res.json({
@@ -52,16 +67,25 @@ router.post("/signin", async (req: Request, res: Response) => {
 });
 
 router.post("/room", middleware, async(req , res) => {
-    const data= CreateRoomSchema.safeParse(req.body);
-    if(!data.success){
+    const parsedData= CreateRoomSchema.safeParse(req.body);
+    if(!parsedData.success){
       res.json({
         message:"Incorrect Credentials"
       })
       return;
     }
+    //@ts-ignore:
+    const userId =req.userId;
+
+    await prismaClient.room.create({
+      data:{
+        slug:parsedData.data.name,
+        admin:userId
+      }
+    })
 
     res.json({
-      roomId:333
+      roomId:userId
     })
 })
 
