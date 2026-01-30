@@ -15,7 +15,6 @@ router.post("/signup", async (req: Request, res: Response) => {
     })
     return;
   }
-
   try {
     await prismaClient.user.create({
       data:{

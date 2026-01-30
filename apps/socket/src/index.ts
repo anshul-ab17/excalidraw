@@ -34,4 +34,4 @@ wss.on("connection", (ws, request) => {
   });
 });
 
-console.log(`WS server running on port ${PORT}`);
+console.log(PORT);
