@@ -1,9 +1,9 @@
 import { Router, Request, Response } from "express";
-import { JWT_SECRET } from "@repo/common-in-backend/config";
+import { JWT_SECRET } from "@repo/common-in-backend";
 import jwt from "jsonwebtoken";
 import { middleware } from "./middleware.js";
-import { CreateRoomSchema, CreateUserSchema, SignInSchema } from "@repo/common-in-apps/types";
-import { prismaClient} from "@repo/db/client"
+import { CreateRoomSchema, CreateUserSchema, SignInSchema } from "@repo/common-in-apps";
+import { prisma } from "@repo/db";
 
 const router: Router = Router();
 router.post("/signup", async (req: Request, res: Response) => {
@@ -16,7 +16,7 @@ router.post("/signup", async (req: Request, res: Response) => {
     return;
   }
   try {
-    const user = await prismaClient.user.create({
+    const user = await prisma.user.create({
       data:{
         email:parsedData.data?.username,
         //hashing the  password!
@@ -44,7 +44,7 @@ router.post("/signin", async (req: Request, res: Response) => {
     }
 
     //compare hashed password
-    const user = await prismaClient.user.findFirst({
+    const user = await prisma.user.findFirst({
       where:{
         email:parsedData.data.username,
         password:parsedData.data.password,
@@ -77,7 +77,7 @@ router.post("/room", middleware, async(req , res) => {
     //@ts-ignore:
     const userId =req.userId;
 
-    await prismaClient.room.create({
+    await prisma.room.create({
       data:{
         slug:parsedData.data.name,
         admin:userId

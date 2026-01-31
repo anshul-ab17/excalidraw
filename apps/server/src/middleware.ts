@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { JWT_SECRET } from "@repo/common-in-backend/config";
+import { JWT_SECRET } from "@repo/common-in-backend";
 import jwt from "jsonwebtoken";
 
 export function middleware(req:Request, res:Response, next:NextFunction) {

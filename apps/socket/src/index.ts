@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { WebSocketServer } from "ws";
-import { JWT_SECRET } from "@repo/common-in-backend/config";
+import { JWT_SECRET } from "@repo/common-in-backend";
 import jwt from "jsonwebtoken";
 
 const PORT = Number(process.env.PORT) || 3001;

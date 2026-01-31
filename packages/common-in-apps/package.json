@@ -1,21 +1,21 @@
 {
   "name": "@repo/common-in-apps",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
   "type": "module",
-  "exports": {
-    "./types": "./src/index.ts"
-  },
   "scripts": {
-    "build": "tsc -b"
+    "build": "tsc"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
     "@types/node": "^22.15.3",
     "zod": "^4.3.6"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  }
 }

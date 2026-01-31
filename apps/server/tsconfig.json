@@ -1,6 +1,11 @@
 {
   "extends": "@repo/typescript-config/base.json", 
   "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@repo/db": ["../db/src/index.ts"],
+      "@repo/db/*": ["../db/src/*"] 
+    },
     // File Layout
     "rootDir": "./src",
     "outDir": "./dist",
@@ -36,5 +41,6 @@
     // "noUncheckedSideEffectImports": true,
     // "moduleDetection": "force",
     // "skipLibCheck": true,
-  }
+  },
+   "include": ["src", "packages/**/*"]
 }
