@@ -46,15 +46,15 @@ Flowchart conventions:
 - Return ONLY a valid JSON array. No markdown fences, no explanation.`;
 
 export async function POST(req: NextRequest) {
-  const apiKey = process.env.API_KEY;
+  const { prompt, mode, userApiKey } = await req.json();
+
+  const apiKey = (userApiKey as string | undefined)?.trim() || process.env.API_KEY;
   if (!apiKey) {
     return NextResponse.json(
-      { error: "API_KEY is not set in apps/web/.env.local" },
+      { error: "No API key provided. Enter your OpenRouter key in the AI modal." },
       { status: 500 }
     );
   }
-
-  const { prompt, mode } = await req.json();
   if (!prompt?.trim()) {
     return NextResponse.json({ error: "Prompt is required" }, { status: 400 });
   }
@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
       headers: {
         "Authorization": `Bearer ${apiKey}`,
         "Content-Type": "application/json",
-        "HTTP-Referer": "http://localhost:3000",
+        "HTTP-Referer": process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000",
         "X-Title": "Canvas App",
       },
       body: JSON.stringify({

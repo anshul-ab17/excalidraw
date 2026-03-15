@@ -249,6 +249,8 @@ export default function GuestCanvas() {
   const [aiMode, setAiMode] = useState<AiMode>("diagram");
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState("");
+  const [userApiKey, setUserApiKey] = useState("");
+  const [showApiKey, setShowApiKey] = useState(false);
 
   // Refs (avoid stale closures in event handlers)
   const elementsRef = useRef<ExcaliElement[]>([]);
@@ -297,6 +299,7 @@ export default function GuestCanvas() {
       }
     } catch {}
     setIsSignedIn(!!localStorage.getItem("token"));
+    setUserApiKey(localStorage.getItem("canvas_api_key") ?? "");
     setLoaded(true);
   }, []);
 
@@ -717,7 +720,7 @@ export default function GuestCanvas() {
       const res = await fetch("/api/ai-diagram", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: aiPrompt, mode: aiMode }),
+        body: JSON.stringify({ prompt: aiPrompt, mode: aiMode, userApiKey: userApiKey.trim() || undefined }),
       });
       const data = await res.json();
       if (!res.ok) { setAiError(data.error || "Failed"); return; }
@@ -726,7 +729,7 @@ export default function GuestCanvas() {
       setElements(next); pushHistory(next);
       setShowAiModal(false); setAiPrompt("");
     } catch {
-      setAiError("Failed to connect. Is API_KEY set in apps/web/.env.local?");
+      setAiError("Failed to connect. Check your API key or try again.");
     } finally { setAiLoading(false); }
   }
 
@@ -773,7 +776,7 @@ export default function GuestCanvas() {
 
   // ─── Derived values ────────────────────────────────────────────────────────
   const tools: { id: Tool; icon: string; label: string }[] = [
-    { id: "hand", icon: "✋", label: "Pan" },
+    { id: "hand", icon: " ", label: "Pan" },
     { id: "selection", icon: "↖", label: "Select & Edit" },
     { id: "rectangle", icon: "▭", label: "Rectangle" },
     { id: "diamond", icon: "◇", label: "Diamond" },
@@ -900,13 +903,13 @@ export default function GuestCanvas() {
         <button onClick={downloadCanvas} style={{ padding: "6px 12px", borderRadius: 6, fontSize: 13, border: "1px solid #dee2e6", background: "white", color: "#495057", cursor: "pointer" }}>⬇ Download</button>
         <button onClick={copyLink} style={{ padding: "6px 12px", borderRadius: 6, fontSize: 13, border: "1px solid #dee2e6", background: copied ? "#2f9e44" : "white", color: copied ? "white" : "#495057", transition: "all 0.2s", cursor: "pointer" }}>{copied ? "✓ Copied!" : "🔗 Share"}</button>
         <div style={{ width: 1, height: 24, background: "#dee2e6" }} />
-        <button onClick={() => { setAiMode("diagram"); setShowAiModal(true); }} style={{ padding: "6px 12px", borderRadius: 6, fontSize: 13, border: `1px solid ${ACCENT_BORDER}`, background: ACCENT_LIGHT, color: ACCENT, cursor: "pointer", fontWeight: 500 }}>✨ Diagram</button>
-        <button onClick={() => { setAiMode("flowchart"); setShowAiModal(true); }} style={{ padding: "6px 12px", borderRadius: 6, fontSize: 13, border: `1px solid ${ACCENT_BORDER}`, background: ACCENT_LIGHT, color: ACCENT, cursor: "pointer", fontWeight: 500 }}>✨ Flowchart</button>
+        {/* <button onClick={() => { setAiMode("diagram"); setShowAiModal(true); }} style={{ padding: "6px 12px", borderRadius: 6, fontSize: 13, border: `1px solid ${ACCENT_BORDER}`, background: ACCENT_LIGHT, color: ACCENT, cursor: "pointer", fontWeight: 500 }}> Diagram</button> */}
+        {/* <button onClick={() => { setAiMode("flowchart"); setShowAiModal(true); }} style={{ padding: "6px 12px", borderRadius: 6, fontSize: 13, border: `1px solid ${ACCENT_BORDER}`, background: ACCENT_LIGHT, color: ACCENT, cursor: "pointer", fontWeight: 500 }}> Flowchart</button> */}
       </div>
 
       {/* Brand */}
       <div style={{ position: "fixed", top: 16, left: 16, zIndex: 10 }}>
-        <div style={{ background: "white", border: "1px solid #dee2e6", borderRadius: 8, padding: "6px 14px", fontSize: 15, fontWeight: 700, color: ACCENT }}>✏️ Canvas</div>
+        <div style={{ background: "white", border: "1px solid #dee2e6", borderRadius: 8, padding: "6px 14px", fontSize: 15, fontWeight: 700, color: ACCENT }}> Canvas</div>
       </div>
 
       {/* Auth */}
@@ -925,7 +928,7 @@ export default function GuestCanvas() {
       {showAiModal && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100 }}>
           <div style={{ background: "white", padding: 32, borderRadius: 16, width: 480, boxShadow: "0 8px 40px rgba(0,0,0,0.2)" }}>
-            <h2 style={{ margin: "0 0 6px", fontSize: 20, fontWeight: 700 }}>{aiMode === "flowchart" ? "✨ Text to Flowchart" : "✨ Text to Diagram"}</h2>
+            <h2 style={{ margin: "0 0 6px", fontSize: 20, fontWeight: 700 }}>{aiMode === "flowchart" ? " Text to Flowchart" : " Text to Diagram"}</h2>
             <p style={{ margin: "0 0 20px", color: "#6c757d", fontSize: 13 }}>{aiMode === "flowchart" ? "Describe a process or workflow. AI generates a flowchart." : "Describe any diagram — architecture, mind map, org chart, network, etc."}</p>
             <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
               {(["diagram", "flowchart"] as AiMode[]).map(m => (
@@ -948,7 +951,47 @@ export default function GuestCanvas() {
               </button>
               <button onClick={() => { setShowAiModal(false); setAiError(""); }} style={{ padding: "10px 16px", borderRadius: 8, fontSize: 14, border: "1px solid #dee2e6", background: "white", cursor: "pointer" }}>Cancel</button>
             </div>
-            <p style={{ margin: "12px 0 0", fontSize: 11, color: "#adb5bd" }}>Requires API_KEY (OpenRouter) in apps/web/.env.local</p>
+
+            {/* API Key input */}
+            <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px solid #f1f3f5" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: "#495057" }}>OpenRouter API Key</label>
+                <a href="https://openrouter.ai/keys" target="_blank" rel="noreferrer"
+                  style={{ fontSize: 11, color: ACCENT, textDecoration: "none" }}>
+                  Get a free key →
+                </a>
+              </div>
+              <div style={{ display: "flex", gap: 6 }}>
+                <input
+                  type={showApiKey ? "text" : "password"}
+                  value={userApiKey}
+                  onChange={e => {
+                    setUserApiKey(e.target.value);
+                    localStorage.setItem("canvas_api_key", e.target.value);
+                  }}
+                  placeholder="sk-or-v1-…  (optional — uses server key if blank)"
+                  style={{
+                    flex: 1, padding: "8px 10px", borderRadius: 8,
+                    border: "1px solid #dee2e6", fontSize: 12, outline: "none",
+                    fontFamily: "monospace",
+                  }}
+                />
+                <button type="button" onClick={() => setShowApiKey(v => !v)}
+                  style={{ padding: "8px 10px", borderRadius: 8, border: "1px solid #dee2e6", background: "white", cursor: "pointer", fontSize: 13 }}>
+                  {showApiKey ? "🙈" : "👁"}
+                </button>
+                {userApiKey && (
+                  <button type="button" onClick={() => { setUserApiKey(""); localStorage.removeItem("canvas_api_key"); }}
+                    style={{ padding: "8px 10px", borderRadius: 8, border: "1px solid #dee2e6", background: "white", cursor: "pointer", fontSize: 13, color: ACCENT }}>
+                    ✕
+                  </button>
+                )}
+              </div>
+              <p style={{ margin: "6px 0 0", fontSize: 11, color: "#999" }}>
+                Saved in your browser only. Sent directly to OpenRouter, nowhere else.
+              </p>
+            </div>
+
           </div>
         </div>
       )}

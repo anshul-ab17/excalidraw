@@ -153,13 +153,15 @@ export default function CanvasRoom({ slug }: { slug: string }) {
     if (!token) { router.push("/signin"); return; }
 
     async function init() {
-      const res = await fetch(`http://localhost:3002/room/${slug}`, {
+      const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3002";
+      const WS = process.env.NEXT_PUBLIC_WS_URL ?? "ws://localhost:3002";
+      const res = await fetch(`${API}/room/${slug}`, {
         headers: { authorization: token! },
       });
       if (!res.ok) { router.push("/dashboard"); return; }
       const data = await res.json();
 
-      const ws = new WebSocket(`ws://localhost:3002?token=${token}`);
+      const ws = new WebSocket(`${WS}?token=${token}`);
       wsRef.current = ws;
 
       ws.onopen = () => {

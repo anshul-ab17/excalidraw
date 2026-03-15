@@ -21,7 +21,8 @@ export default function AuthForm() {
     setLoading(true);
     try {
       const body = mode === "signup" ? { username, password, name } : { username, password };
-      const res = await fetch(`http://localhost:3002/${mode}`, {
+      const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3002";
+      const res = await fetch(`${API}/${mode}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -42,7 +43,7 @@ export default function AuthForm() {
 
   return (
     <div style={{ background: "white", padding: 40, borderRadius: 16, boxShadow: "0 4px 24px rgba(0,0,0,0.1)", width: 380 }}>
-      <h1 style={{ margin: "0 0 8px", fontSize: 28, fontWeight: 700, color: "#e03131" }}>✏️ Canvas</h1>
+      <h1 style={{ margin: "0 0 8px", fontSize: 28, fontWeight: 700, color: "#e03131" }}>✏️ </h1>
       <p style={{ margin: "0 0 32px", color: "#6c757d", fontSize: 14 }}>Sign in to save boards and collaborate in real-time</p>
 
       <div style={{ display: "flex", gap: 8, marginBottom: 24, background: "#f1f3f5", padding: 4, borderRadius: 8 }}>
