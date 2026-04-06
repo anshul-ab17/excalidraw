@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import rough from "roughjs";
 import { STORAGE_KEY } from "../types";
 import { drawSelectionOverlay } from "../canvasUtils";
-import { renderElement } from "../renderElement";
+import { renderElement, RoughCache, PencilCache } from "../renderElement";
 import { useCanvasStyle } from "./useCanvasStyle";
 import { useCanvasHistory } from "./useCanvasHistory";
 import { useZoomPan } from "./useZoomPan";
@@ -14,7 +14,16 @@ import { useGuestDrawing } from "./useGuestDrawing";
 export function useGuestCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageCacheRef = useRef<Map<string, HTMLImageElement>>(new Map());
+  const rcRef = useRef<ReturnType<typeof rough.canvas> | null>(null);
+  const rafRef = useRef(0);
+  const roughCacheRef = useRef<RoughCache>(new Map());
+  const pencilCacheRef = useRef<PencilCache>(new Map());
   const router = useRouter();
+
+  // BroadcastChannel — syncs elements across tabs/windows in the same browser
+  const bcRef = useRef<BroadcastChannel | null>(null);
+  const tabId = useRef(Math.random().toString(36).slice(2));
+  const isBcReceivingRef = useRef(false);
 
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -22,7 +31,7 @@ export function useGuestCanvas() {
 
   const style = useCanvasStyle();
   const hist = useCanvasHistory();
-  const zoom = useZoomPan(canvasRef, () => hist.setElements(prev => [...prev]));
+  const zoom = useZoomPan(canvasRef, () => { rcRef.current = null; });
   const ai = useAiDiagram({ elementsRef: hist.elementsRef, pushHistory: hist.pushHistory, setElements: hist.setElements });
   const draw = useGuestDrawing({
     canvasRef,
@@ -42,6 +51,20 @@ export function useGuestCanvas() {
     opacityRef: style.opacityRef,
   });
 
+  // BroadcastChannel setup — receive elements from other tabs
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const bc = new BroadcastChannel("canvex_guest_sync");
+    bcRef.current = bc;
+    bc.onmessage = (e) => {
+      if (e.data?.tabId === tabId.current) return; // ignore own echoes
+      isBcReceivingRef.current = true;
+      hist.setElements(e.data.elements);
+      isBcReceivingRef.current = false;
+    };
+    return () => bc.close();
+  }, []);
+
   // Load from localStorage
   useEffect(() => {
     try {
@@ -60,49 +83,72 @@ export function useGuestCanvas() {
     setLoaded(true);
   }, []);
 
-  // Save to localStorage
+  // Save to localStorage + broadcast to other tabs
   useEffect(() => {
     if (!loaded) return;
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(hist.elements)); } catch {}
+    // Don't re-broadcast what we just received from another tab
+    if (!isBcReceivingRef.current) {
+      bcRef.current?.postMessage({ tabId: tabId.current, elements: hist.elements });
+    }
   }, [hist.elements, loaded]);
 
-  // Canvas render
+  // RAF render loop — reads exclusively from refs, zero React re-render pressure
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d")!;
-    const rc = rough.canvas(canvas);
+    function loop() {
+      const canvas = canvasRef.current;
+      if (canvas) {
+        if (!rcRef.current) rcRef.current = rough.canvas(canvas);
+        const rc = rcRef.current;
+        const ctx = canvas.getContext("2d")!;
+        const pan = zoom.panOffsetRef.current!;
+        const z = zoom.zoomRef.current!;
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "#f8f9fa";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#f8f9fa";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    const gridSize = 40 * zoom.zoom;
-    const ox = ((zoom.panOffset.x % gridSize) + gridSize) % gridSize;
-    const oy = ((zoom.panOffset.y % gridSize) + gridSize) % gridSize;
-    ctx.strokeStyle = "#e9ecef";
-    ctx.lineWidth = 1;
-    for (let x = ox - gridSize; x < canvas.width + gridSize; x += gridSize) {
-      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+        // Batched grid — single beginPath/stroke instead of one per line
+        const gridSize = 40 * z;
+        const ox = ((pan.x % gridSize) + gridSize) % gridSize;
+        const oy = ((pan.y % gridSize) + gridSize) % gridSize;
+        ctx.strokeStyle = "#e9ecef";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        for (let x = ox - gridSize; x < canvas.width + gridSize; x += gridSize) {
+          ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height);
+        }
+        for (let y = oy - gridSize; y < canvas.height + gridSize; y += gridSize) {
+          ctx.moveTo(0, y); ctx.lineTo(canvas.width, y);
+        }
+        ctx.stroke();
+
+        ctx.save();
+        ctx.translate(pan.x, pan.y);
+        ctx.scale(z, z);
+        hist.elementsRef.current.forEach(el =>
+          renderElement(rc, ctx, el, imageCacheRef.current,
+            () => { /* image loaded — RAF will pick it up next frame */ },
+            roughCacheRef.current, pencilCacheRef.current)
+        );
+        if (draw.drawingElementRef.current) {
+          renderElement(rc, ctx, draw.drawingElementRef.current, imageCacheRef.current,
+            undefined, undefined, pencilCacheRef.current);
+        }
+        ctx.restore();
+
+        // Selection overlay (drawn in screen space)
+        const selId = draw.selectedIdRef.current;
+        if (selId) {
+          const sel = hist.elementsRef.current.find(e => e.id === selId);
+          if (sel) drawSelectionOverlay(ctx, sel, pan, z);
+        }
+      }
+      rafRef.current = requestAnimationFrame(loop);
     }
-    for (let y = oy - gridSize; y < canvas.height + gridSize; y += gridSize) {
-      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
-    }
-
-    ctx.save();
-    ctx.translate(zoom.panOffset.x, zoom.panOffset.y);
-    ctx.scale(zoom.zoom, zoom.zoom);
-    hist.elements.forEach(el =>
-      renderElement(rc, ctx, el, imageCacheRef.current, () => hist.setElements(prev => [...prev]))
-    );
-    if (draw.drawingElementRef.current) renderElement(rc, ctx, draw.drawingElementRef.current, imageCacheRef.current);
-    ctx.restore();
-
-    if (draw.selectedId) {
-      const sel = hist.elements.find(e => e.id === draw.selectedId);
-      if (sel) drawSelectionOverlay(ctx, sel, zoom.panOffset, zoom.zoom);
-    }
-  }, [hist.elements, zoom.panOffset, zoom.zoom, draw.selectedId]);
+    rafRef.current = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, []);
 
   function clearCanvas() {
     if (!confirm("Clear all elements?")) return;
