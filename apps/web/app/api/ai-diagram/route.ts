@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import Anthropic from "@anthropic-ai/sdk";
 
 const DIAGRAM_SYSTEM = `You are a diagram generator. Given a description, output a JSON array of shape elements.
 
@@ -48,10 +49,10 @@ Flowchart conventions:
 export async function POST(req: NextRequest) {
   const { prompt, mode, userApiKey } = await req.json();
 
-  const apiKey = (userApiKey as string | undefined)?.trim() || process.env.API_KEY;
+  const apiKey = (userApiKey as string | undefined)?.trim() || process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
-      { error: "No API key provided. Enter your OpenRouter key in the AI modal." },
+      { error: "No API key provided. Enter your Anthropic API key in the AI modal." },
       { status: 500 }
     );
   }
@@ -62,31 +63,19 @@ export async function POST(req: NextRequest) {
   const systemPrompt = mode === "flowchart" ? FLOWCHART_SYSTEM : DIAGRAM_SYSTEM;
 
   try {
-    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000",
-        "X-Title": "Canvas App",
-      },
-      body: JSON.stringify({
-        model: "anthropic/claude-haiku-4-5",
-        max_tokens: 2048,
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: `Generate a ${mode} for: ${prompt}` },
-        ],
-      }),
+    const client = new Anthropic({ apiKey });
+
+    const response = await client.messages.create({
+      model: "claude-opus-4-6",
+      max_tokens: 4096,
+      system: systemPrompt,
+      messages: [
+        { role: "user", content: `Generate a ${mode} for: ${prompt}` },
+      ],
     });
 
-    if (!res.ok) {
-      const err = await res.text();
-      return NextResponse.json({ error: `OpenRouter error: ${err}` }, { status: 500 });
-    }
-
-    const data = await res.json();
-    const text: string = data.choices?.[0]?.message?.content ?? "";
+    const textBlock = response.content.find((b) => b.type === "text");
+    const text = textBlock?.type === "text" ? textBlock.text : "";
 
     // Strip possible markdown fences
     const raw = text.trim()
@@ -103,9 +92,18 @@ export async function POST(req: NextRequest) {
         { status: 500 }
       );
     }
-  } catch (err: any) {
+  } catch (err: unknown) {
+    if (err instanceof Anthropic.AuthenticationError) {
+      return NextResponse.json({ error: "Invalid Anthropic API key" }, { status: 401 });
+    }
+    if (err instanceof Anthropic.RateLimitError) {
+      return NextResponse.json({ error: "Rate limited — try again shortly" }, { status: 429 });
+    }
+    if (err instanceof Anthropic.APIError) {
+      return NextResponse.json({ error: err.message }, { status: 500 });
+    }
     return NextResponse.json(
-      { error: err?.message || "AI request failed" },
+      { error: err instanceof Error ? err.message : "AI request failed" },
       { status: 500 }
     );
   }
