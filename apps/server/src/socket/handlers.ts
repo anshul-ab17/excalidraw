@@ -91,7 +91,10 @@ export async function handleMessage(ws: WebSocket, raw: string) {
       const { text } = msg;
       const { roomId } = client;
       if (!roomId || !text?.trim()) return;
-      broadcastAll(roomId, { type: "chat", text: text.trim(), userId: client.userId, ts: Date.now() });
+      const now = Date.now();
+      if (now - client.lastChat < 500) return; // rate limit: 1 msg per 500ms
+      client.lastChat = now;
+      broadcastAll(roomId, { type: "chat", text: text.trim(), userId: client.userId, ts: now });
       break;
     }
   }

@@ -13,11 +13,13 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
     "@repo/ui": "workspace:*",
+    "@types/three": "^0.183.1",
     "next": "16.1.0",
     "perfect-freehand": "^1.2.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "roughjs": "^4.6.6"
+    "roughjs": "^4.6.6",
+    "three": "^0.183.2"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",

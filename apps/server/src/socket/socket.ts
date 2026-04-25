@@ -2,8 +2,7 @@ import { WebSocketServer, WebSocket } from "ws";
 import { IncomingMessage, Server } from "http";
 import { JWT_SECRET } from "@repo/jwt";
 import jwt from "jsonwebtoken";
-import { clients } from "./state.js";
-import { broadcast } from "./state.js";
+import { clients, rooms, broadcast } from "./state.js";
 import { handleMessage } from "./handlers.js";
 
 export function initSocketServer(server: Server) {
@@ -24,7 +23,7 @@ export function initSocketServer(server: Server) {
     }
     if (typeof decode === "string" || !decode?.userId) { ws.close(); return; }
 
-    clients.set(ws, { userId: decode.userId, lastCursor: 0 });
+    clients.set(ws, { userId: decode.userId, lastCursor: 0, lastChat: 0 });
 
     ws.on("message", async (data) => {
       try { await handleMessage(ws, data.toString()); }
@@ -35,6 +34,11 @@ export function initSocketServer(server: Server) {
       const client = clients.get(ws);
       if (client?.roomId) {
         broadcast(client.roomId, ws, { type: "user_left", userId: client.userId });
+        const roomClients = rooms.get(client.roomId);
+        if (roomClients) {
+          roomClients.delete(ws);
+          if (roomClients.size === 0) rooms.delete(client.roomId);
+        }
       }
       clients.delete(ws);
     });

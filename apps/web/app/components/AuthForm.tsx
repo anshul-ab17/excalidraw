@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { API_URL } from "../lib/config";
 
 export default function AuthForm() {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
@@ -21,8 +22,7 @@ export default function AuthForm() {
     setLoading(true);
     try {
       const body = mode === "signup" ? { username, password, name } : { username, password };
-      const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3002";
-      const res = await fetch(`${API}/${mode}`, {
+      const res = await fetch(`${API_URL}/${mode}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -42,17 +42,21 @@ export default function AuthForm() {
   }
 
   return (
-    <div style={{ background: "white", padding: 40, borderRadius: 16, boxShadow: "0 4px 24px rgba(0,0,0,0.1)", width: 380 }}>
-      <h1 style={{ margin: "0 0 8px", fontSize: 28, fontWeight: 700, color: "#e03131" }}>✏️ </h1>
-      <p style={{ margin: "0 0 32px", color: "#6c757d", fontSize: 14 }}>Sign in to save boards and collaborate in real-time</p>
+    <div style={{
+      background: "#fff",
+      padding: 32, borderRadius: 16, boxShadow: "0 10px 40px rgba(0,0,0,0.05)", width: 400,
+      border: "1px solid #e9ecef"
+    }}>
+      <h1 style={{ margin: "0 0 8px", fontSize: 24, fontWeight: 800, color: "#000", letterSpacing: "-0.5px" }}>Canvas</h1>
+      <p style={{ margin: "0 0 24px", color: "#6c757d", fontSize: 14 }}>Sign in to collaborate in real-time</p>
 
-      <div style={{ display: "flex", gap: 8, marginBottom: 24, background: "#f1f3f5", padding: 4, borderRadius: 8 }}>
+      <div style={{ display: "flex", gap: 8, marginBottom: 24, background: "#f8f9fa", padding: 4, borderRadius: 10 }}>
         {(["signin", "signup"] as const).map((m) => (
           <button key={m} onClick={() => setMode(m)} style={{
-            flex: 1, padding: "8px 0", borderRadius: 6, fontSize: 14, fontWeight: 500,
+            flex: 1, padding: "8px 0", borderRadius: 8, fontSize: 13, fontWeight: 700,
             background: mode === m ? "white" : "transparent",
-            color: mode === m ? "#1e1e1e" : "#6c757d",
-            boxShadow: mode === m ? "0 1px 4px rgba(0,0,0,0.1)" : "none",
+            color: mode === m ? "#000" : "#adb5bd",
+            boxShadow: mode === m ? "0 2px 8px rgba(0,0,0,0.05)" : "none",
             transition: "all 0.15s", border: "none", cursor: "pointer",
           }}>
             {m === "signin" ? "Sign In" : "Sign Up"}
@@ -60,35 +64,40 @@ export default function AuthForm() {
         ))}
       </div>
 
-      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         {mode === "signup" && (
           <div>
-            <label style={{ display: "block", fontSize: 13, fontWeight: 500, marginBottom: 6 }}>Display Name</label>
-            <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" required />
+            <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 8, color: "#495057" }}>Display Name</label>
+            <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" required 
+              style={{ width: "100%", padding: "14px 16px", borderRadius: 12, border: "2px solid #f1f3f5", outline: "none", transition: "border-color 0.2s" }} />
           </div>
         )}
         <div>
-          <label style={{ display: "block", fontSize: 13, fontWeight: 500, marginBottom: 6 }}>Username</label>
-          <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="min 8 characters" required minLength={8} />
+          <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 8, color: "#495057" }}>Username</label>
+          <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="min 8 characters" required minLength={8}
+            style={{ width: "100%", padding: "14px 16px", borderRadius: 12, border: "2px solid #f1f3f5", outline: "none" }} />
         </div>
         <div>
-          <label style={{ display: "block", fontSize: 13, fontWeight: 500, marginBottom: 6 }}>Password</label>
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="min 8 characters" required minLength={8} />
+          <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 8, color: "#495057" }}>Password</label>
+          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="min 8 characters" required minLength={8}
+            style={{ width: "100%", padding: "14px 16px", borderRadius: 12, border: "2px solid #f1f3f5", outline: "none" }} />
         </div>
-        {error && <p style={{ color: "#e03131", fontSize: 13, margin: 0 }}>{error}</p>}
+        {error && <p style={{ color: "#ff5f56", fontSize: 13, fontWeight: 600, margin: 0 }}>{error}</p>}
         <button type="submit" disabled={loading} style={{
-          marginTop: 8, padding: "10px 16px", borderRadius: 8, fontSize: 14, fontWeight: 500,
-          background: "#e03131", color: "white", border: "none", cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.7 : 1,
+          marginTop: 12, padding: "16px", borderRadius: 12, fontSize: 15, fontWeight: 900,
+          background: "#28d08b", color: "#000", border: "none", cursor: loading ? "not-allowed" : "pointer", 
+          opacity: loading ? 0.7 : 1, transition: "transform 0.2s",
+          boxShadow: "0 10px 30px rgba(40, 208, 139, 0.3)"
         }}>
           {loading ? "Loading..." : mode === "signin" ? "Sign In" : "Create Account"}
         </button>
       </form>
 
-      <div style={{ marginTop: 20, textAlign: "center" }}>
+      <div style={{ marginTop: 32, textAlign: "center" }}>
         <button onClick={() => router.push("/")} style={{
-          background: "none", border: "none", color: "#6c757d", fontSize: 13, cursor: "pointer", textDecoration: "underline"
+          background: "none", border: "none", color: "#adb5bd", fontSize: 13, fontWeight: 600, cursor: "pointer", textDecoration: "underline"
         }}>
-          Continue drawing without signing in
+          Continue drawing as guest
         </button>
       </div>
     </div>

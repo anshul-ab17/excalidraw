@@ -1,7 +1,7 @@
 "use client";
 
-const ACCENT = "#e03131";
-const ACCENT_BORDER = "#fca5a5";
+const ACCENT = "#28d08b";
+const ACCENT_BORDER = "#96f2d7";
 
 interface Props {
   onLogoClick: () => void;
@@ -20,8 +20,8 @@ export default function DashboardNavbar({ onLogoClick, onOpenCanvas, onLogout }:
         <button onClick={onLogoClick} style={{
           background: "rgba(255, 255, 255, 0.85)", backdropFilter: "blur(24px)",
           border: "1px solid rgba(255,255,255,0.4)", borderRadius: 12,
-          padding: "8px 16px", fontSize: 18, fontWeight: 900, color: ACCENT, cursor: "pointer",
-          boxShadow: "0 4px 12px rgba(0,0,0,0.05)", fontFamily: "'Comic Sans MS', cursive, sans-serif"
+          padding: "8px 16px", fontSize: 18, fontWeight: 900, color: "#1e1e1e", cursor: "pointer",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.05)", fontFamily: "Inter, sans-serif"
         }}>
           Canvax
         </button>
@@ -38,8 +38,8 @@ export default function DashboardNavbar({ onLogoClick, onOpenCanvas, onLogout }:
         </button>
         <button onClick={onLogout} style={{
           background: ACCENT, borderRadius: 12, border: "none",
-          padding: "8px 16px", fontSize: 13, color: "white", cursor: "pointer",
-          fontWeight: 600, boxShadow: "0 4px 12px rgba(224, 49, 49, 0.2)"
+          padding: "8px 16px", fontSize: 13, color: "#000", cursor: "pointer",
+          fontWeight: 800, boxShadow: "0 4px 12px rgba(40, 208, 139, 0.2)"
         }}>
           Sign out
         </button>

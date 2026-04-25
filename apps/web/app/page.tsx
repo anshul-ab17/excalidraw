@@ -1,5 +1,5 @@
-import GuestCanvas from "./components/GuestCanvas";
+import Hero from "./components/Hero";
 
 export default function HomePage() {
-  return <GuestCanvas />;
+  return <Hero />;
 }

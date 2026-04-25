@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import rough from "roughjs";
-import { ExcaliElement, Tool, CursorPos } from "../types";
+import { ExcaliElement, Tool, CursorPos, AiMode } from "../types";
 import { genId, genSeed } from "../canvasUtils";
 import { renderElement, RoughCache, PencilCache } from "../renderElement";
 import { API_URL, WS_URL } from "../../../lib/config";
@@ -26,7 +26,19 @@ export function useRoomCanvas(slug: string) {
   const [copied, setCopied] = useState(false);
   const [chatMessages, setChatMessages] = useState<{ id: string; userId: string; text: string; ts: number; self: boolean }[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [chatOpen, setChatOpen] = useState(false);
   const myUserIdRef = useRef<string>("");
+
+  // AI diagram state
+  const [showAiModal, setShowAiModal] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [aiMode, setAiMode] = useState<AiMode>("diagram");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState("");
+  const [userApiKey, setUserApiKey] = useState(() =>
+    typeof window !== "undefined" ? localStorage.getItem("canvas_api_key") || "" : ""
+  );
+  const [showApiKey, setShowApiKey] = useState(false);
 
   const isDrawingRef = useRef(false);
   const drawingElementRef = useRef<ExcaliElement | null>(null);
@@ -121,7 +133,7 @@ export function useRoomCanvas(slug: string) {
     const token = localStorage.getItem("token");
     if (!token) { router.push("/signin"); return; }
     try {
-      myUserIdRef.current = JSON.parse(atob(token.split(".")[1])).userId ?? "";
+      myUserIdRef.current = JSON.parse(atob(token.split(".")[1] ?? "")).userId ?? "";
     } catch { /* ignore */ }
 
     async function init() {
@@ -356,8 +368,64 @@ export function useRoomCanvas(slug: string) {
     wsRef.current.send(JSON.stringify({ type: "chat", text: text.trim() }));
   }
 
-  function clearUnread() {
-    setUnreadCount(0);
+  function toggleChat() {
+    setChatOpen((v) => {
+      if (!v) setUnreadCount(0); // clear badge when opening
+      return !v;
+    });
+  }
+
+  // AI diagram helpers
+  function convertAiElements(raw: any[]): ExcaliElement[] {
+    const result: ExcaliElement[] = [];
+    for (const el of raw) {
+      const type = (el.type as Tool) || "rectangle";
+      result.push({
+        id: genId(), type, x: el.x ?? 100, y: el.y ?? 100,
+        width: el.width ?? 120, height: el.height ?? 60,
+        strokeColor: el.strokeColor ?? "#1e1e1e", backgroundColor: el.backgroundColor ?? "transparent",
+        strokeWidth: 2, roughness: 1, opacity: 100, seed: genSeed(),
+        points: el.points, text: el.text,
+      });
+      if (el.label && type !== "text") {
+        result.push({
+          id: genId(), type: "text",
+          x: (el.x ?? 100) + (el.width ?? 120) / 2 - el.label.length * 4,
+          y: (el.y ?? 100) + (el.height ?? 60) / 2 - 16,
+          width: el.label.length * 8, height: 20,
+          strokeColor: "#1e1e1e", backgroundColor: "transparent",
+          strokeWidth: 1, roughness: 0, opacity: 100, seed: genSeed(), text: el.label,
+        });
+      }
+    }
+    return result;
+  }
+
+  async function generateDiagram() {
+    if (!aiPrompt.trim()) return;
+    setAiLoading(true);
+    setAiError("");
+    try {
+      const res = await fetch("/api/ai-diagram", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: aiPrompt, mode: aiMode, userApiKey: userApiKey.trim() || undefined }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setAiError(data.error || "Failed"); return; }
+      const aiEls = convertAiElements(data.elements);
+      const next = [...elementsRef.current, ...aiEls];
+      applyElements(next);
+      pushHistory(next);
+      // Broadcast each new element to collaborators
+      aiEls.forEach((el) => wsRef.current?.send(JSON.stringify({ type: "draw", element: el })));
+      setShowAiModal(false);
+      setAiPrompt("");
+    } catch {
+      setAiError("Failed to connect. Check your API key or try again.");
+    } finally {
+      setAiLoading(false);
+    }
   }
 
   const cursor =
@@ -375,7 +443,14 @@ export function useRoomCanvas(slug: string) {
     opacity, setOpacity,
     history, historyIdx,
     cursors, connected, copied,
-    chatMessages, unreadCount, sendChat, clearUnread,
+    chatMessages, unreadCount, chatOpen, toggleChat, sendChat,
+    showAiModal, setShowAiModal,
+    aiPrompt, setAiPrompt,
+    aiMode, setAiMode,
+    aiLoading, aiError,
+    userApiKey, setUserApiKey,
+    showApiKey, setShowApiKey,
+    generateDiagram,
     onMouseDown, onMouseMove, onMouseUp,
     undo, redo, clearCanvas, downloadCanvas, copyLink,
     cursor,
