@@ -68,16 +68,31 @@ export default function Dashboard() {
   return (
     <div style={{
       minHeight: "100vh", background: "var(--bg)",
-      backgroundImage: "radial-gradient(var(--border) 1px, transparent 1px)",
-      backgroundSize: "32px 32px",
+      position: "relative",
     }}>
+      {/* Grain overlay */}
+      <svg
+        style={{ position: "fixed", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 3, mixBlendMode: "multiply", opacity: 0.12 } as React.CSSProperties}
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <filter id="n">
+          <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/>
+          <feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .6 0"/>
+        </filter>
+        <rect width="100%" height="100%" filter="url(#n)"/>
+      </svg>
+
+      {/* Corner ticks */}
+      <div style={{ position: "fixed", top: 40, left: 30, width: 12, height: 12, border: `1px solid var(--border)`, zIndex: 25 }} />
+      <div style={{ position: "fixed", top: 40, right: 30, width: 12, height: 12, border: `1px solid var(--border)`, zIndex: 25 }} />
+      <div style={{ position: "fixed", top: 46, left: 36, right: 36, height: 1, background: "var(--border)", opacity: 0.3, zIndex: 25 }} />
       <DashboardNavbar
         onLogoClick={() => router.push("/")}
         onOpenCanvas={() => router.push("/")}
         onLogout={logout}
       />
 
-      <div style={{ maxWidth: 960, margin: "0 auto", padding: "100px 24px 60px" }}>
+      <div style={{ maxWidth: 1080, margin: "0 auto", padding: "120px 48px 60px", position: "relative", zIndex: 5 }}>
         <DashboardHeader
           loading={loading}
           roomCount={rooms.length}
