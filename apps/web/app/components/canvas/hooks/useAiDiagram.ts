@@ -22,9 +22,13 @@ export function useAiDiagram({ elementsRef, pushHistory, setElements }: Deps) {
     setAiLoading(true);
     setAiError("");
     try {
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") ?? "" : "";
       const res = await fetch("/api/ai-diagram", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": token,
+        },
         body: JSON.stringify({ prompt: aiPrompt, mode: aiMode, userApiKey: userApiKey.trim() || undefined }),
       });
       const data = await res.json();
@@ -42,25 +46,28 @@ export function useAiDiagram({ elementsRef, pushHistory, setElements }: Deps) {
     }
   }
 
-  function convertAiElements(raw: any[]): ExcaliElement[] {
+  function convertAiElements(raw: Record<string, unknown>[]): ExcaliElement[] {
     const result: ExcaliElement[] = [];
     for (const el of raw) {
       const type = (el.type as Tool) || "rectangle";
       result.push({
-        id: genId(), type, x: el.x ?? 100, y: el.y ?? 100,
-        width: el.width ?? 120, height: el.height ?? 60,
-        strokeColor: el.strokeColor ?? "#1e1e1e", backgroundColor: el.backgroundColor ?? "transparent",
+        id: genId(), type, x: (el.x as number) ?? 100, y: (el.y as number) ?? 100,
+        width: (el.width as number) ?? 120, height: (el.height as number) ?? 60,
+        strokeColor: (el.strokeColor as string) ?? "#1e1e1e",
+        backgroundColor: (el.backgroundColor as string) ?? "transparent",
         strokeWidth: 2, roughness: 1, opacity: 100, seed: genSeed(),
-        points: el.points, text: el.text,
+        points: el.points as Array<[number, number]> | undefined,
+        text: el.text as string | undefined,
       });
       if (el.label && type !== "text") {
+        const label = el.label as string;
         result.push({
           id: genId(), type: "text",
-          x: (el.x ?? 100) + (el.width ?? 120) / 2 - el.label.length * 4,
-          y: (el.y ?? 100) + (el.height ?? 60) / 2 - 16,
-          width: el.label.length * 8, height: 20,
+          x: ((el.x as number) ?? 100) + ((el.width as number) ?? 120) / 2 - label.length * 4,
+          y: ((el.y as number) ?? 100) + ((el.height as number) ?? 60) / 2 - 16,
+          width: label.length * 8, height: 20,
           strokeColor: "#1e1e1e", backgroundColor: "transparent",
-          strokeWidth: 1, roughness: 0, opacity: 100, seed: genSeed(), text: el.label,
+          strokeWidth: 1, roughness: 0, opacity: 100, seed: genSeed(), text: label,
         });
       }
     }
