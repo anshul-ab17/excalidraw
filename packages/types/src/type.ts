@@ -1,4 +1,4 @@
-
+import {z} from "zod"
 
 export const CreateUserSchema = z.object({
   username: z.string().min(3).max(50).trim(),
@@ -32,6 +32,8 @@ const ExcaliElementSchema = z.object({
   seed: z.number().finite(),
   points: z.array(z.tuple([z.number(), z.number()])).max(10000).optional(),
   text: z.string().max(10000).optional(),
+  fontSize: z.number().finite().optional(),
+  fontFamily: z.string().max(128).optional(),
   imageData: z.string().max(5_000_000).optional(),
 });
 
@@ -65,6 +67,8 @@ export interface ExcaliElement {
   opacity: number;
   points?: Array<[number, number]> | undefined;
   text?: string | undefined;
+  fontSize?: number | undefined;
+  fontFamily?: string | undefined;
   seed: number;
   imageData?: string | undefined;
 }
