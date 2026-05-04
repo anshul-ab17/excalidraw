@@ -1,7 +1,19 @@
 import { WebSocket } from "ws";
+import { ExcaliElement } from "@repo/types";
 
-export type ClientState = { userId: string; roomId?: string; lastCursor: number; lastChat: number };
-export type CachedEntry = { element: any; userId: string };
+export type { ExcaliElement };
+
+export type ClientState = {
+  userId: string;
+  roomId?: string;
+  lastCursor: number;
+  lastChat: number;
+};
+
+export type CachedEntry = {
+  element: ExcaliElement;
+  userId: string;
+};
 
 export type RoomMap = Map<string, Set<WebSocket>>;
 export type ClientMap = Map<WebSocket, ClientState>;

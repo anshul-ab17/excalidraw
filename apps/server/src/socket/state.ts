@@ -32,24 +32,26 @@ export function broadcastAll(roomId: string, message: object) {
   });
 }
 
-// Flush dirty elements to DB every 150ms — decouples persistence from broadcast latency
-setInterval(async () => {
-  for (const [roomId, ids] of pendingUpserts) {
-    if (!ids.size) continue;
-    const cache = roomCache.get(roomId);
-    if (!cache) { ids.clear(); continue; }
-    const batch = Array.from(ids);
-    ids.clear();
-    for (const id of batch) {
-      const entry = cache.get(id);
-      if (!entry) continue;
-      upsertElement(id, parseInt(roomId), entry.element.type, JSON.stringify(entry.element), entry.userId)
-        .catch((err) => console.error("[DB] upsert error:", err));
+// Called explicitly from index.ts — no side-effects on import
+export function startFlushWorker(intervalMs = 150) {
+  return setInterval(async () => {
+    for (const [roomId, ids] of pendingUpserts) {
+      if (!ids.size) continue;
+      const cache = roomCache.get(roomId);
+      if (!cache) { ids.clear(); continue; }
+      const batch = Array.from(ids);
+      ids.clear();
+      for (const id of batch) {
+        const entry = cache.get(id);
+        if (!entry) continue;
+        upsertElement(id, parseInt(roomId), entry.element.type, JSON.stringify(entry.element), entry.userId)
+          .catch((err) => console.error("[DB] upsert error:", err));
+      }
     }
-  }
-  if (pendingDeletes.size) {
-    const batch = Array.from(pendingDeletes);
-    pendingDeletes.clear();
-    softDeleteElements(batch).catch((err) => console.error("[DB] delete error:", err));
-  }
-}, 150);
+    if (pendingDeletes.size) {
+      const batch = Array.from(pendingDeletes);
+      pendingDeletes.clear();
+      softDeleteElements(batch).catch((err) => console.error("[DB] delete error:", err));
+    }
+  }, intervalMs);
+}
