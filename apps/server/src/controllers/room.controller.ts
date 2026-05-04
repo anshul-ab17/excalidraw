@@ -5,15 +5,14 @@ import { createRoom, getAllRooms, getRoomBySlug } from "../services/room.service
 export async function postRoom(req: Request, res: Response) {
   const parsed = CreateRoomSchema.safeParse(req.body);
   if (!parsed.success) {
-    res.json({ message: "Incorrect Credentials" });
+    res.status(400).json({ message: "Validation failed", errors: parsed.error.flatten() });
     return;
   }
-  const userId = (req as any).userId;
   try {
-    const room = await createRoom(parsed.data.name, userId);
-    res.json({ roomId: room.id });
+    const room = await createRoom(parsed.data.name, req.userId);
+    res.status(201).json({ roomId: room.id });
   } catch {
-    res.status(411).json({ message: "Room already exists with that name" });
+    res.status(409).json({ message: "Room name already taken" });
   }
 }
 
