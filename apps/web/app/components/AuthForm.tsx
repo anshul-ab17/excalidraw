@@ -43,20 +43,20 @@ export default function AuthForm() {
 
   return (
     <div style={{
-      background: "#fff",
-      padding: 32, borderRadius: 16, boxShadow: "0 10px 40px rgba(0,0,0,0.05)", width: 400,
-      border: "1px solid #e9ecef"
+      background: "var(--surface)",
+      padding: 32, borderRadius: 16, boxShadow: "var(--shadow-lg)", width: 400,
+      border: "1px solid var(--border)"
     }}>
-      <h1 style={{ margin: "0 0 8px", fontSize: 24, fontWeight: 800, color: "#000", letterSpacing: "-0.5px" }}>Canvas</h1>
-      <p style={{ margin: "0 0 24px", color: "#6c757d", fontSize: 14 }}>Sign in to collaborate in real-time</p>
+      <h1 style={{ margin: "0 0 8px", fontSize: 24, fontWeight: 800, color: "var(--text)", letterSpacing: "-0.5px" }}>Canvas</h1>
+      <p style={{ margin: "0 0 24px", color: "var(--text-muted)", fontSize: 14 }}>Sign in to collaborate in real-time</p>
 
-      <div style={{ display: "flex", gap: 8, marginBottom: 24, background: "#f8f9fa", padding: 4, borderRadius: 10 }}>
+      <div style={{ display: "flex", gap: 8, marginBottom: 24, background: "var(--bg)", padding: 4, borderRadius: 10, border: "1px solid var(--border)" }}>
         {(["signin", "signup"] as const).map((m) => (
           <button key={m} onClick={() => setMode(m)} style={{
             flex: 1, padding: "8px 0", borderRadius: 8, fontSize: 13, fontWeight: 700,
-            background: mode === m ? "white" : "transparent",
-            color: mode === m ? "#000" : "#adb5bd",
-            boxShadow: mode === m ? "0 2px 8px rgba(0,0,0,0.05)" : "none",
+            background: mode === m ? "var(--surface)" : "transparent",
+            color: mode === m ? "var(--text)" : "var(--text-muted)",
+            boxShadow: mode === m ? "var(--shadow-sm)" : "none",
             transition: "all 0.15s", border: "none", cursor: "pointer",
           }}>
             {m === "signin" ? "Sign In" : "Sign Up"}
@@ -67,27 +67,27 @@ export default function AuthForm() {
       <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         {mode === "signup" && (
           <div>
-            <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 8, color: "#495057" }}>Display Name</label>
+            <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 8, color: "var(--text)" }}>Display Name</label>
             <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" required 
-              style={{ width: "100%", padding: "14px 16px", borderRadius: 12, border: "2px solid #f1f3f5", outline: "none", transition: "border-color 0.2s" }} />
+              style={{ width: "100%", padding: "14px 16px", borderRadius: 12, border: "2px solid var(--border)", background: "var(--bg)", color: "var(--text)", outline: "none", transition: "border-color 0.2s" }} />
           </div>
         )}
         <div>
-          <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 8, color: "#495057" }}>Username</label>
+          <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 8, color: "var(--text)" }}>Username</label>
           <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="min 8 characters" required minLength={8}
-            style={{ width: "100%", padding: "14px 16px", borderRadius: 12, border: "2px solid #f1f3f5", outline: "none" }} />
+            style={{ width: "100%", padding: "14px 16px", borderRadius: 12, border: "2px solid var(--border)", background: "var(--bg)", color: "var(--text)", outline: "none" }} />
         </div>
         <div>
-          <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 8, color: "#495057" }}>Password</label>
+          <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 8, color: "var(--text)" }}>Password</label>
           <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="min 8 characters" required minLength={8}
-            style={{ width: "100%", padding: "14px 16px", borderRadius: 12, border: "2px solid #f1f3f5", outline: "none" }} />
+            style={{ width: "100%", padding: "14px 16px", borderRadius: 12, border: "2px solid var(--border)", background: "var(--bg)", color: "var(--text)", outline: "none" }} />
         </div>
         {error && <p style={{ color: "#ff5f56", fontSize: 13, fontWeight: 600, margin: 0 }}>{error}</p>}
         <button type="submit" disabled={loading} style={{
           marginTop: 12, padding: "16px", borderRadius: 12, fontSize: 15, fontWeight: 900,
-          background: "#28d08b", color: "#000", border: "none", cursor: loading ? "not-allowed" : "pointer", 
+          background: "var(--primary)", color: "#ffffff", border: "none", cursor: loading ? "not-allowed" : "pointer", 
           opacity: loading ? 0.7 : 1, transition: "transform 0.2s",
-          boxShadow: "0 10px 30px rgba(40, 208, 139, 0.3)"
+          boxShadow: "0 10px 30px rgba(153, 27, 27, 0.3)"
         }}>
           {loading ? "Loading..." : mode === "signin" ? "Sign In" : "Create Account"}
         </button>

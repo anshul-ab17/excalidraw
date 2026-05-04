@@ -54,7 +54,7 @@ export function useGuestCanvas() {
   // BroadcastChannel setup — receive elements from other tabs
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const bc = new BroadcastChannel("canvex_guest_sync");
+    const bc = new BroadcastChannel("Canvas_guest_sync");
     bcRef.current = bc;
     bc.onmessage = (e) => {
       if (e.data?.tabId === tabId.current) return; // ignore own echoes
@@ -77,7 +77,7 @@ export function useGuestCanvas() {
           hist.setHistoryIdx(1);
         }
       }
-    } catch {}
+    } catch { }
     setIsSignedIn(!!localStorage.getItem("token"));
     ai.setUserApiKey(localStorage.getItem("canvas_api_key") ?? "");
     setLoaded(true);
@@ -86,7 +86,7 @@ export function useGuestCanvas() {
   // Save to localStorage + broadcast to other tabs
   useEffect(() => {
     if (!loaded) return;
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(hist.elements)); } catch {}
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(hist.elements)); } catch { }
     // Don't re-broadcast what we just received from another tab
     if (!isBcReceivingRef.current) {
       bcRef.current?.postMessage({ tabId: tabId.current, elements: hist.elements });
@@ -105,7 +105,7 @@ export function useGuestCanvas() {
         const z = zoom.zoomRef.current!;
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = "#f8f9fa";
+        ctx.fillStyle = "#FBF8F1";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         // Batched grid — single beginPath/stroke instead of one per line
@@ -133,7 +133,7 @@ export function useGuestCanvas() {
         );
         if (draw.drawingElementRef.current) {
           renderElement(rc, ctx, draw.drawingElementRef.current, imageCacheRef.current,
-            undefined, undefined, pencilCacheRef.current);
+            undefined, roughCacheRef.current, pencilCacheRef.current);
         }
         ctx.restore();
 
@@ -174,9 +174,9 @@ export function useGuestCanvas() {
 
   const cursor =
     draw.currentTool === "hand" ? (zoom.isPanning ? "grabbing" : "grab") :
-    draw.currentTool === "eraser" ? "cell" :
-    draw.currentTool === "text" ? "text" :
-    draw.currentTool === "selection" ? draw.canvasCursor : "crosshair";
+      draw.currentTool === "eraser" ? "cell" :
+        draw.currentTool === "text" ? "text" :
+          draw.currentTool === "selection" ? draw.canvasCursor : "crosshair";
 
   const textScreenX = draw.textInput ? draw.textInput.x * zoom.zoom + zoom.panOffset.x : 0;
   const textScreenY = draw.textInput ? draw.textInput.y * zoom.zoom + zoom.panOffset.y : 0;

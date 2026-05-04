@@ -51,11 +51,11 @@ export interface CursorPos {
   userId: string;
 }
 
-export const ACCENT = "#28d08b";
-export const ACCENT_LIGHT = "#defcf0";
-export const ACCENT_BORDER = "#96f2d7";
-export const COLORS = ["#1e1e1e", "#28d08b", "#ff922b", "#339af0", "#ffc008", "#7950f2", "#e64980", "#ffffff"];
-export const BG_COLORS = ["transparent", "#defcf0", "#ffec99", "#d0ebff", "#fff3bf", "#e5dbff", "#ffdeeb"];
+export const ACCENT = "#E84A3F";
+export const ACCENT_LIGHT = "#FBF8F1";
+export const ACCENT_BORDER = "#F2B84B";
+export const COLORS = ["#15130F", "#E84A3F", "#3D6BE5", "#2E8A6A", "#F2B84B", "#7950f2", "#F1B8C2", "#FBF8F1"];
+export const BG_COLORS = ["transparent", "#B8DDC4", "#A9C8F5", "#F1B8C2", "#F2B84B", "#e5dbff", "#EDE6D8"];
 export const STORAGE_KEY = "canvas_drawing";
 export const HANDLE_CURSORS: Record<string, string> = {
   nw: "nw-resize",
