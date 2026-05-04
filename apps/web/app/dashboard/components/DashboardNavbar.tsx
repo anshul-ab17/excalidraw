@@ -1,7 +1,5 @@
 "use client";
-
-const ACCENT = "#991b1b";
-const ACCENT_BORDER = "#fca5a5";
+import { ACCENT } from "../../components/canvas/types";
 
 interface Props {
   onLogoClick: () => void;
@@ -18,28 +16,35 @@ export default function DashboardNavbar({ onLogoClick, onOpenCanvas, onLogout }:
     }}>
       <div style={{ pointerEvents: "auto" }}>
         <button onClick={onLogoClick} style={{
-          background: "var(--glass)", backdropFilter: "blur(24px)",
-          border: "1px solid var(--border)", borderRadius: 12,
-          padding: "8px 16px", fontSize: 18, fontWeight: 900, color: "var(--text)", cursor: "pointer",
-          boxShadow: "var(--shadow-sm)", fontFamily: "Inter, sans-serif"
+          background: "var(--paper-3, #FBF8F1)",
+          border: "1.5px solid var(--ink, #15130F)",
+          borderRadius: 10, padding: "7px 14px",
+          display: "flex", alignItems: "center", gap: 8,
+          boxShadow: "3px 3px 0 var(--ink, #15130F)",
+          cursor: "pointer",
         }}>
-          Canvax
+          <span style={{ width: 9, height: 9, borderRadius: "50%", background: ACCENT, boxShadow: "1.5px 1.5px 0 var(--ink, #15130F)", display: "inline-block", flexShrink: 0 }} />
+          <span style={{ fontSize: 18, fontWeight: 700, fontFamily: "'Fraunces', serif", color: "var(--ink, #15130F)", letterSpacing: "-0.01em" }}>Canvas</span>
         </button>
       </div>
 
-      <div style={{ display: "flex", gap: 12, pointerEvents: "auto" }}>
+      <div style={{ display: "flex", gap: 10, pointerEvents: "auto" }}>
         <button onClick={onOpenCanvas} style={{
-          background: "var(--glass)", backdropFilter: "blur(24px)",
-          border: "1px solid var(--border)", borderRadius: 12,
-          padding: "8px 16px", fontSize: 13, color: "var(--text)", cursor: "pointer",
-          fontWeight: 600, boxShadow: "var(--shadow-sm)"
+          background: "var(--paper-3, #FBF8F1)",
+          border: "1.5px solid var(--ink, #15130F)",
+          borderRadius: 10, padding: "8px 16px",
+          fontSize: 13, color: "var(--ink, #15130F)", cursor: "pointer",
+          fontWeight: 600, fontFamily: "'Inter Tight', sans-serif",
+          boxShadow: "3px 3px 0 var(--ink, #15130F)",
         }}>
           ← Open Canvas
         </button>
         <button onClick={onLogout} style={{
-          background: "var(--primary)", borderRadius: 12, border: "none",
-          padding: "8px 16px", fontSize: 13, color: "#ffffff", cursor: "pointer",
-          fontWeight: 800, boxShadow: "0 4px 12px rgba(153, 27, 27, 0.2)"
+          background: ACCENT, border: `1.5px solid ${ACCENT}`,
+          borderRadius: 10, padding: "8px 16px",
+          fontSize: 13, color: "#fff", cursor: "pointer",
+          fontWeight: 600, fontFamily: "'Inter Tight', sans-serif",
+          boxShadow: "3px 3px 0 var(--ink, #15130F)",
         }}>
           Sign out
         </button>
