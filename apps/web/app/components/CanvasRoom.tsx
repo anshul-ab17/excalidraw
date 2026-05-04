@@ -1,4 +1,4 @@
-"use client";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Tool } from "./canvas/types";
 import { useRoomCanvas } from "./canvas/hooks/useRoomCanvas";
@@ -8,26 +8,45 @@ import RoomBottomBar from "./canvas/RoomBottomBar";
 import CursorOverlay from "./canvas/CursorOverlay";
 import RoomHeader from "./canvas/RoomHeader";
 import ChatPanel from "./canvas/ChatPanel";
+import { 
+  MousePointer2, Square, Diamond, Circle, Minus, MoveRight, 
+  Pencil, Type, Eraser
+} from "lucide-react";
 import AiModal from "./canvas/AiModal";
 
-const ROOM_TOOLS: { id: Tool; icon: string; label: string }[] = [
-  { id: "selection", icon: "↖", label: "Select" },
-  { id: "rectangle", icon: "▭", label: "Rectangle" },
-  { id: "diamond", icon: "◇", label: "Diamond" },
-  { id: "ellipse", icon: "○", label: "Ellipse" },
-  { id: "line", icon: "╱", label: "Line" },
-  { id: "arrow", icon: "→", label: "Arrow" },
-  { id: "pencil", icon: "✏", label: "Pencil" },
-  { id: "text", icon: "T", label: "Text" },
-  { id: "eraser", icon: "⌫", label: "Eraser" },
+const ROOM_TOOLS: { id: Tool; icon: React.ReactNode; label: string }[] = [
+  { id: "selection", icon: <MousePointer2 size={18} />, label: "Select" },
+  { id: "rectangle", icon: <Square size={18} />, label: "Rectangle" },
+  { id: "diamond", icon: <Diamond size={18} />, label: "Diamond" },
+  { id: "ellipse", icon: <Circle size={18} />, label: "Ellipse" },
+  { id: "line", icon: <Minus size={18} style={{ transform: "rotate(-45deg)" }} />, label: "Line" },
+  { id: "arrow", icon: <MoveRight size={18} style={{ transform: "rotate(-45deg)" }} />, label: "Arrow" },
+  { id: "pencil", icon: <Pencil size={18} />, label: "Pencil" },
+  { id: "text", icon: <Type size={18} />, label: "Text" },
+  { id: "eraser", icon: <Eraser size={18} />, label: "Eraser" },
 ];
 
 export default function CanvasRoom({ slug }: { slug: string }) {
   const router = useRouter();
   const c = useRoomCanvas(slug);
+  const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    const isDark = document.documentElement.classList.contains("dark");
+    setDarkMode(isDark);
+  }, []);
+
+  const toggleDark = () => {
+    setDarkMode(!darkMode);
+    document.documentElement.classList.toggle("dark");
+  };
 
   return (
-    <div style={{ position: "fixed", inset: 0, overflow: "hidden" }}>
+    <div style={{ 
+      position: "fixed", inset: 0, overflow: "hidden", 
+      background: darkMode ? "#15130F" : "#FBF8F1",
+      transition: "background 0.3s ease"
+    }}>
       <canvas
         ref={c.canvasRef}
         style={{ display: "block", cursor: c.cursor }}
@@ -42,26 +61,35 @@ export default function CanvasRoom({ slug }: { slug: string }) {
         tools={ROOM_TOOLS}
         currentTool={c.currentTool}
         onToolChange={c.setCurrentTool}
+        onAiOpen={() => c.setShowAiModal(true)}
+        onClear={c.clearCanvas}
+        onDownload={c.downloadCanvas}
+        onCopyLink={c.copyLink}
+        copied={c.copied}
+        onChatToggle={c.toggleChat}
+        chatOpen={c.chatOpen}
+        unreadCount={c.unreadCount}
+        darkMode={darkMode}
+        onThemeToggle={toggleDark}
       />
 
-      <StylePanel
-        strokeColor={c.strokeColor} bgColor={c.bgColor}
-        strokeWidth={c.strokeWidth} roughness={c.roughness} opacity={c.opacity}
-        onStrokeColorChange={c.setStrokeColor} onBgColorChange={c.setBgColor}
-        onStrokeWidthChange={c.setStrokeWidth} onRoughnessChange={c.setRoughness}
-        onOpacityChange={c.setOpacity}
-      />
+      {["rectangle", "diamond", "ellipse", "line", "arrow", "pencil", "text"].includes(c.currentTool) && (
+        <StylePanel
+          strokeColor={c.strokeColor} bgColor={c.bgColor}
+          strokeWidth={c.strokeWidth} roughness={c.roughness} opacity={c.opacity}
+          onStrokeColorChange={c.setStrokeColor} onBgColorChange={c.setBgColor}
+          onStrokeWidthChange={c.setStrokeWidth} onRoughnessChange={c.setRoughness}
+          onOpacityChange={c.setOpacity}
+        />
+      )}
 
       <RoomBottomBar
         historyIdx={c.historyIdx} historyLength={c.history.length}
-        copied={c.copied} connected={c.connected} slug={slug}
-        chatOpen={c.chatOpen} unreadCount={c.unreadCount}
-        onUndo={c.undo} onRedo={c.redo} onClear={c.clearCanvas}
-        onDownload={c.downloadCanvas} onCopyLink={c.copyLink}
-        onChatToggle={c.toggleChat} onAiOpen={() => c.setShowAiModal(true)}
+        connected={c.connected}
+        onUndo={c.undo} onRedo={c.redo}
       />
 
-      <RoomHeader slug={slug} onBack={() => router.push("/dashboard")} />
+      <RoomHeader slug={slug} />
 
       <ChatPanel
         open={c.chatOpen}
@@ -83,6 +111,9 @@ export default function CanvasRoom({ slug }: { slug: string }) {
           onClearApiKey={() => { c.setUserApiKey(""); localStorage.removeItem("canvas_api_key"); }}
         />
       )}
+    </div>
+  );
+}
     </div>
   );
 }

@@ -13,15 +13,15 @@ interface Props {
 export default function RoomsGrid({ loading, rooms, onRoomClick, onNewBoard }: Props) {
   const grid: React.CSSProperties = {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
-    gap: 16,
+    gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+    gap: 24,
   };
 
   if (loading) {
     return (
       <div style={grid}>
         {[1, 2, 3].map(i => (
-          <div key={i} style={{ background: "white", border: "1px solid #e9ecef", borderRadius: 12, padding: 24, height: 120, opacity: 0.5 }} />
+          <div key={i} style={{ background: "var(--surface)", border: "1.5px solid var(--border)", borderRadius: 18, padding: 24, height: 180, opacity: 0.5 }} />
         ))}
       </div>
     );
@@ -30,16 +30,17 @@ export default function RoomsGrid({ loading, rooms, onRoomClick, onNewBoard }: P
   if (rooms.length === 0) {
     return (
       <div style={{
-        background: "white", border: "1px solid #e9ecef", borderRadius: 16,
-        padding: "80px 24px", textAlign: "center", boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
+        background: "var(--surface)", border: "1.5px solid var(--border)", borderRadius: 18,
+        padding: "100px 24px", textAlign: "center", boxShadow: "var(--shadow)",
       }}>
-        <p style={{ fontSize: 18, fontWeight: 600, margin: "0 0 8px", color: "#1e1e1e" }}>No boards yet</p>
-        <p style={{ fontSize: 14, margin: "0 0 28px", color: "#6c757d" }}>
+        <p style={{ fontSize: 28, fontWeight: 500, margin: "0 0 8px", color: "var(--text)", fontFamily: "'Fraunces', serif" }}>No boards yet</p>
+        <p style={{ fontSize: 15, margin: "0 0 32px", color: "var(--text-muted)", fontFamily: "'Inter Tight', sans-serif" }}>
           Create a board to start collaborating in real-time
         </p>
         <button onClick={onNewBoard} style={{
-          background: ACCENT, color: "white", border: "none", borderRadius: 8,
-          padding: "10px 24px", fontSize: 14, fontWeight: 600, cursor: "pointer",
+          background: "var(--primary)", color: "white", border: "1.5px solid var(--ink)", borderRadius: 12,
+          padding: "12px 32px", fontSize: 13, fontWeight: 700, cursor: "pointer",
+          boxShadow: "var(--shadow-sm)", fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase", letterSpacing: "0.05em"
         }}>
           + Create your first board
         </button>

@@ -1,33 +1,53 @@
 "use client";
+import { useState, useEffect } from "react";
 import { Tool } from "./canvas/types";
 import { useGuestCanvas } from "./canvas/hooks/useGuestCanvas";
 import ToolBar from "./canvas/ToolBar";
 import StylePanel from "./canvas/StylePanel";
 import BottomBar from "./canvas/BottomBar";
+import { 
+  Hand, MousePointer2, Square, Diamond, Circle, Minus, MoveRight, 
+  Pencil, Type, Eraser
+} from "lucide-react";
 import TextEditor from "./canvas/TextEditor";
 import AiModal from "./canvas/AiModal";
 import GuestBrand from "./canvas/GuestBrand";
 import GuestAuthBar from "./canvas/GuestAuthBar";
 import DeleteSelectedButton from "./canvas/DeleteSelectedButton";
 
-const GUEST_TOOLS: { id: Tool; icon: string; label: string }[] = [
-  { id: "hand", icon: " ", label: "Pan" },
-  { id: "selection", icon: "↖", label: "Select & Edit" },
-  { id: "rectangle", icon: "▭", label: "Rectangle" },
-  { id: "diamond", icon: "◇", label: "Diamond" },
-  { id: "ellipse", icon: "○", label: "Ellipse" },
-  { id: "line", icon: "╱", label: "Line" },
-  { id: "arrow", icon: "→", label: "Arrow" },
-  { id: "pencil", icon: "✏", label: "Pencil" },
-  { id: "text", icon: "A", label: "Text" },
-  { id: "eraser", icon: "⌫", label: "Eraser" },
+const GUEST_TOOLS: { id: Tool; icon: React.ReactNode; label: string }[] = [
+  { id: "hand", icon: <Hand size={18} />, label: "Pan" },
+  { id: "selection", icon: <MousePointer2 size={18} />, label: "Select & Edit" },
+  { id: "rectangle", icon: <Square size={18} />, label: "Rectangle" },
+  { id: "diamond", icon: <Diamond size={18} />, label: "Diamond" },
+  { id: "ellipse", icon: <Circle size={18} />, label: "Ellipse" },
+  { id: "line", icon: <Minus size={18} style={{ transform: "rotate(-45deg)" }} />, label: "Line" },
+  { id: "arrow", icon: <MoveRight size={18} style={{ transform: "rotate(-45deg)" }} />, label: "Arrow" },
+  { id: "pencil", icon: <Pencil size={18} />, label: "Pencil" },
+  { id: "text", icon: <Type size={18} />, label: "Text" },
+  { id: "eraser", icon: <Eraser size={18} />, label: "Eraser" },
 ];
 
 export default function GuestCanvas() {
   const c = useGuestCanvas();
+  const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    const isDark = document.documentElement.classList.contains("dark");
+    setDarkMode(isDark);
+  }, []);
+
+  const toggleDark = () => {
+    setDarkMode(!darkMode);
+    document.documentElement.classList.toggle("dark");
+  };
 
   return (
-    <div style={{ position: "fixed", inset: 0, overflow: "hidden" }}>
+    <div style={{ 
+      position: "fixed", inset: 0, overflow: "hidden",
+      background: darkMode ? "#15130F" : "#FBF8F1",
+      transition: "background 0.3s ease"
+    }}>
       <input ref={c.fileInputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={c.handleImageUpload} />
 
       <canvas
@@ -60,22 +80,30 @@ export default function GuestCanvas() {
         currentTool={c.currentTool}
         onToolChange={c.handleToolChange}
         onImageInsert={() => c.fileInputRef.current?.click()}
+        onAiOpen={() => c.setShowAiModal(true)}
+        onClear={c.clearCanvas}
+        onDownload={c.downloadCanvas}
+        onCopyLink={c.copyLink}
+        copied={c.copied}
+        darkMode={darkMode}
+        onThemeToggle={toggleDark}
       />
 
-      <StylePanel
-        strokeColor={c.strokeColor} bgColor={c.bgColor}
-        strokeWidth={c.strokeWidth} roughness={c.roughness} opacity={c.opacity}
-        onStrokeColorChange={c.setStrokeColor} onBgColorChange={c.setBgColor}
-        onStrokeWidthChange={c.setStrokeWidth} onRoughnessChange={c.setRoughness}
-        onOpacityChange={c.setOpacity}
-      />
+      {["rectangle", "diamond", "ellipse", "line", "arrow", "pencil", "text"].includes(c.currentTool) && (
+        <StylePanel
+          strokeColor={c.strokeColor} bgColor={c.bgColor}
+          strokeWidth={c.strokeWidth} roughness={c.roughness} opacity={c.opacity}
+          onStrokeColorChange={c.setStrokeColor} onBgColorChange={c.setBgColor}
+          onStrokeWidthChange={c.setStrokeWidth} onRoughnessChange={c.setRoughness}
+          onOpacityChange={c.setOpacity}
+        />
+      )}
 
       <BottomBar
         historyIdx={c.historyIdx} historyLength={c.history.length}
-        zoom={c.zoom} copied={c.copied}
+        zoom={c.zoom}
         onUndo={c.undo} onRedo={c.redo}
         onZoomIn={() => c.doZoom(0.1)} onZoomOut={() => c.doZoom(-0.1)}
-        onClear={c.clearCanvas} onDownload={c.downloadCanvas} onCopyLink={c.copyLink}
       />
 
       <GuestBrand />

@@ -2,7 +2,7 @@
    Canvas — shared styles, Canvas design system
    ================================================================ */
 :root {
-  /* Canvas palette */
+  /* Canvex palette */
   --paper: #F4EFE6;
   --paper-2: #EDE6D8;
   --paper-3: #FBF8F1;
@@ -22,7 +22,7 @@
   --grid-on-paper: rgba(21, 19, 15, 0.08);
   --card-shadow: 0 30px 60px -20px rgba(21, 19, 15, 0.2);
 
-  /* legacy aliases for canvas components */
+  /* legacy aliases */
   --bg: var(--paper);
   --surface: var(--paper-3);
   --border: rgba(21, 19, 15, 0.18);
@@ -31,8 +31,9 @@
   --primary: var(--accent);
   --primary-glow: rgba(232, 74, 63, 0.25);
   --radius: 10px;
+  --border-width: 1.5px;
   --shadow-sm: 0 1px 2px 0 rgba(21, 19, 15, 0.06);
-  --shadow: 0 4px 6px -1px rgba(21, 19, 15, 0.1), 0 2px 4px -2px rgba(21, 19, 15, 0.1);
+  --shadow: 0 4px 6px -1px rgba(21, 19, 15, 0.1);
   --shadow-lg: 6px 6px 0 var(--ink);
   --glass: rgba(244, 239, 230, 0.75);
 }
@@ -127,7 +128,7 @@ html[data-theme="dark"] .grain {
   opacity: 0.08;
 }
 
-/* ── Rise / Reveal animations ─────────────────────────────────────────────── */
+/*  Rise / Reveal animations  */
 .rise {
   animation: rise 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
@@ -143,7 +144,7 @@ html[data-theme="dark"] .grain {
   transform: translateY(0);
 }
 
-/* ── 3D Stage / Scene / Layer ─────────────────────────────────────────────── */
+/*  3D Stage / Scene / Layer  */
 .hero-stage {
   position: relative;
   height: 100%;
@@ -165,7 +166,7 @@ html[data-theme="dark"] .grain {
   transform-style: preserve-3d;
 }
 
-/* ── Canvas card primitives ───────────────────────────────────────────────── */
+/*  Canvas card primitives  */
 .canvas-card {
   background: #FBF8F1;
   border: 1.5px solid #15130F;
@@ -206,7 +207,7 @@ html[data-theme="dark"] .grain {
   border: 1px solid #15130F;
 }
 
-/* ── Palette / toolbar ────────────────────────────────────────────────────── */
+/*  Palette / toolbar  */
 .palette-panel {
   background: #FBF8F1;
   border: 1.5px solid #15130F;
@@ -237,7 +238,7 @@ html[data-theme="dark"] .grain {
   box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.3);
 }
 
-/* ── Sticky notes ─────────────────────────────────────────────────────────── */
+/*  Sticky notes  */
 .sticky-note {
   background: #F2B84B;
   border: 1.5px solid #15130F;
@@ -250,10 +251,15 @@ html[data-theme="dark"] .grain {
   color: #15130F;
 }
 
-.sticky-note.blue { background: #A9C8F5; }
-.sticky-note.green { background: #B8DDC4; }
+.sticky-note.blue {
+  background: #A9C8F5;
+}
 
-/* ── Avatars ──────────────────────────────────────────────────────────────── */
+.sticky-note.green {
+  background: #B8DDC4;
+}
+
+/*  Avatars  */
 .avatar-chip {
   width: 42px;
   height: 42px;
@@ -269,7 +275,7 @@ html[data-theme="dark"] .grain {
   color: #15130F;
 }
 
-/* ── Cursor flags ─────────────────────────────────────────────────────────── */
+/*  Cursor flags  */
 .cursor-flag {
   display: flex;
   align-items: center;
@@ -292,7 +298,7 @@ html[data-theme="dark"] .grain {
   color: #fff;
 }
 
-/* ── Hand labels ──────────────────────────────────────────────────────────── */
+/*  Hand labels  */
 .hand-label {
   font-family: "Caveat", cursive;
   color: #E84A3F;
@@ -301,9 +307,11 @@ html[data-theme="dark"] .grain {
   white-space: nowrap;
 }
 
-.hand-label.blue { color: #3D6BE5; }
+.hand-label.blue {
+  color: #3D6BE5;
+}
 
-/* ── Canvas preview section (002) ────────────────────────────────────────── */
+/*  Canvas preview section (002)  */
 .canvas-preview-wrap {
   position: relative;
   border: 1.5px solid var(--ink);
@@ -359,8 +367,14 @@ html[data-theme="dark"] .canvas-preview-wrap::before {
   transition: background 0.15s, color 0.15s;
 }
 
-.cp-toolbar .t:hover { background: rgba(21, 19, 15, 0.06); }
-.cp-toolbar .t.on { background: #E84A3F; color: #fff; }
+.cp-toolbar .t:hover {
+  background: rgba(21, 19, 15, 0.06);
+}
+
+.cp-toolbar .t.on {
+  background: #E84A3F;
+  color: #fff;
+}
 
 .cp-brand {
   position: absolute;
@@ -439,9 +453,15 @@ html[data-theme="dark"] .canvas-preview-wrap::before {
   font-weight: 500;
 }
 
-.cp-props h5:first-child { margin-top: 0; }
+.cp-props h5:first-child {
+  margin-top: 0;
+}
 
-.cp-props .row { display: flex; gap: 4px; flex-wrap: wrap; }
+.cp-props .row {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
 
 .cp-props .sw {
   width: 16px;
@@ -473,8 +493,14 @@ html[data-theme="dark"] .canvas-preview-wrap::before {
   cursor: pointer;
 }
 
-.cp-props .seg div:last-child { border-right: none; }
-.cp-props .seg div.on { background: #15130F; color: #F4EFE6; }
+.cp-props .seg div:last-child {
+  border-right: none;
+}
+
+.cp-props .seg div.on {
+  background: #15130F;
+  color: #F4EFE6;
+}
 
 .cp-dock {
   position: absolute;
@@ -507,10 +533,19 @@ html[data-theme="dark"] .canvas-preview-wrap::before {
   color: #7A7264;
 }
 
-.cp-dock .b.accent { background: #E84A3F; color: #fff; border-radius: 6px; }
-.cp-art { position: absolute; inset: 0; pointer-events: none; }
+.cp-dock .b.accent {
+  background: #E84A3F;
+  color: #fff;
+  border-radius: 6px;
+}
 
-/* ── Theme toggle button ──────────────────────────────────────────────────── */
+.cp-art {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/*  Theme toggle button  */
 .theme-toggle {
   width: 36px;
   height: 36px;
@@ -564,6 +599,12 @@ input:focus {
 }
 
 /* buttons */
+.glass {
+  background: var(--glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
 .btn {
   background: var(--ink);
   color: var(--paper);
@@ -598,7 +639,6 @@ input:focus {
 .btn-primary:hover {
   transform: translate(-2px, -2px);
   box-shadow: 7px 7px 0 var(--ink);
-  filter: none;
 }
 
 .btn-outline {
@@ -611,12 +651,6 @@ input:focus {
 .btn-outline:hover {
   background: var(--ink);
   color: var(--paper);
-}
-
-.glass {
-  background: var(--glass);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
 }
 
 /* typography helpers */

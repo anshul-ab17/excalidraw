@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import jwt from "jsonwebtoken";
 
 const DIAGRAM_SYSTEM = `You are a diagram generator. Given a description, output a JSON array of shape elements.
 
@@ -47,6 +48,18 @@ Flowchart conventions:
 - Return ONLY a valid JSON array. No markdown fences, no explanation.`;
 
 export async function POST(req: NextRequest) {
+  // Auth guard — require a valid JWT
+  const JWT_SECRET = process.env.JWT_SECRET;
+  if (!JWT_SECRET) {
+    return NextResponse.json({ error: "Server misconfigured" }, { status: 500 });
+  }
+  const auth = req.headers.get("authorization") ?? "";
+  try {
+    jwt.verify(auth, JWT_SECRET);
+  } catch {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const { prompt, mode, userApiKey } = await req.json();
 
   const apiKey = (userApiKey as string | undefined)?.trim() || process.env.ANTHROPIC_API_KEY;
@@ -77,7 +90,6 @@ export async function POST(req: NextRequest) {
     const textBlock = response.content.find((b) => b.type === "text");
     const text = textBlock?.type === "text" ? textBlock.text : "";
 
-    // Strip possible markdown fences
     const raw = text.trim()
       .replace(/^```json\s*/i, "")
       .replace(/^```\s*/i, "")

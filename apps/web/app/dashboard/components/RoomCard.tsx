@@ -1,8 +1,6 @@
 "use client";
 import { useState } from "react";
-
-const ACCENT = "#991b1b";
-const ACCENT_BORDER = "#fca5a5";
+import { ACCENT } from "../../components/canvas/types";
 
 export interface Room {
   id: number;
@@ -11,7 +9,7 @@ export interface Room {
   adminId: string;
 }
 
-const CARD_COLORS = ["#defcf0", "#f0fff4", "#eff6ff", "#fefce8", "#faf5ff"];
+const CARD_COLORS = ["#B8DDC4", "#A9C8F5", "#F1B8C2", "#F2C97A", "#D4C8F0"];
 const CARD_ICONS = ["✏️", "🎨", "📐", "🖊️", "🗂️"];
 
 interface Props {
@@ -29,30 +27,47 @@ export default function RoomCard({ room, onClick }: Props) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        background: "var(--surface)",
-        border: `1px solid ${hovered ? "var(--primary)" : "var(--border)"}`,
-        borderRadius: 16, padding: 24, cursor: "pointer", transition: "all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
-        boxShadow: hovered ? "0 20px 40px rgba(153, 27, 27, 0.12)" : "var(--shadow-sm)",
-        transform: hovered ? "translateY(-4px)" : "none",
+        background: "var(--paper-3, #FBF8F1)",
+        border: "1.5px solid var(--ink, #15130F)",
+        borderRadius: 14, padding: 24, cursor: "pointer",
+        boxShadow: hovered ? "8px 8px 0 var(--ink, #15130F)" : "4px 4px 0 var(--ink, #15130F)",
+        transform: hovered ? "translate(-2px, -2px)" : "none",
+        transition: "transform 0.18s ease, box-shadow 0.18s ease",
       }}
     >
       <div style={{
-        width: 54, height: 54, borderRadius: 12,
-        background: idx === 0 ? "var(--primary-glow)" : CARD_COLORS[idx], border: `1px solid ${hovered ? "var(--primary)" : "var(--border)"}`,
+        width: 48, height: 48, borderRadius: 10,
+        background: CARD_COLORS[idx],
+        border: "1.5px solid var(--ink, #15130F)",
         display: "flex", alignItems: "center", justifyContent: "center",
-        marginBottom: 20, fontSize: 24, transition: "all 0.2s",
+        marginBottom: 18, fontSize: 22,
+        boxShadow: "2px 2px 0 var(--ink, #15130F)",
       }}>
         {CARD_ICONS[idx]}
       </div>
-      <h3 style={{ margin: "0 0 8px", fontSize: 18, fontWeight: 800, color: "var(--text)", letterSpacing: "-0.5px" }}>
+      <h3 style={{
+        margin: "0 0 8px", fontSize: 18, fontWeight: 700,
+        color: "var(--ink, #15130F)", letterSpacing: "-0.02em",
+        fontFamily: "'Fraunces', serif",
+      }}>
         {room.slug}
       </h3>
-      <p style={{ margin: 0, fontSize: 13, color: "#adb5bd", fontWeight: 500 }}>
+      <p style={{
+        margin: 0, fontSize: 10, color: "var(--muted, #7A7264)",
+        fontWeight: 500, fontFamily: "'JetBrains Mono', monospace",
+        textTransform: "uppercase", letterSpacing: "0.1em",
+      }}>
         {new Date(room.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
       </p>
       {hovered && (
-        <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px solid var(--border)" }}>
-          <span style={{ fontSize: 13, color: "var(--primary)", fontWeight: 800 }}>Open board →</span>
+        <div style={{
+          marginTop: 18, paddingTop: 14,
+          borderTop: "1px solid var(--rule, #E8E0D0)",
+        }}>
+          <span style={{
+            fontSize: 13, color: ACCENT, fontWeight: 700,
+            fontFamily: "'Inter Tight', sans-serif",
+          }}>Open board →</span>
         </div>
       )}
     </div>

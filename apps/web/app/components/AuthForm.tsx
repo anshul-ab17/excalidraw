@@ -44,20 +44,21 @@ export default function AuthForm() {
   return (
     <div style={{
       background: "var(--surface)",
-      padding: 32, borderRadius: 16, boxShadow: "var(--shadow-lg)", width: 400,
-      border: "1px solid var(--border)"
+      padding: 40, borderRadius: 18, boxShadow: "var(--shadow-lg)", width: 440,
+      border: "1.5px solid var(--border)"
     }}>
-      <h1 style={{ margin: "0 0 8px", fontSize: 24, fontWeight: 800, color: "var(--text)", letterSpacing: "-0.5px" }}>Canvas</h1>
-      <p style={{ margin: "0 0 24px", color: "var(--text-muted)", fontSize: 14 }}>Sign in to collaborate in real-time</p>
+      <h1 style={{ margin: "0 0 8px", fontSize: 32, fontWeight: 500, color: "var(--text)", letterSpacing: "-0.03em", fontFamily: "'Fraunces', serif" }}>Canvas</h1>
+      <p style={{ margin: "0 0 32px", color: "var(--text-muted)", fontSize: 14, fontFamily: "'Inter Tight', sans-serif" }}>Sign in to collaborate in real-time</p>
 
-      <div style={{ display: "flex", gap: 8, marginBottom: 24, background: "var(--bg)", padding: 4, borderRadius: 10, border: "1px solid var(--border)" }}>
+      <div style={{ display: "flex", gap: 8, marginBottom: 28, background: "var(--bg)", padding: 6, borderRadius: 12, border: "1.5px solid var(--border)" }}>
         {(["signin", "signup"] as const).map((m) => (
           <button key={m} onClick={() => setMode(m)} style={{
-            flex: 1, padding: "8px 0", borderRadius: 8, fontSize: 13, fontWeight: 700,
+            flex: 1, padding: "10px 0", borderRadius: 8, fontSize: 12, fontWeight: 700,
             background: mode === m ? "var(--surface)" : "transparent",
             color: mode === m ? "var(--text)" : "var(--text-muted)",
             boxShadow: mode === m ? "var(--shadow-sm)" : "none",
             transition: "all 0.15s", border: "none", cursor: "pointer",
+            fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase", letterSpacing: "0.05em"
           }}>
             {m === "signin" ? "Sign In" : "Sign Up"}
           </button>
@@ -67,29 +68,29 @@ export default function AuthForm() {
       <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         {mode === "signup" && (
           <div>
-            <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 8, color: "var(--text)" }}>Display Name</label>
+            <label style={{ display: "block", fontSize: 11, fontWeight: 700, marginBottom: 8, color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase" }}>Display Name</label>
             <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" required 
-              style={{ width: "100%", padding: "14px 16px", borderRadius: 12, border: "2px solid var(--border)", background: "var(--bg)", color: "var(--text)", outline: "none", transition: "border-color 0.2s" }} />
+              style={{ width: "100%", padding: "14px 16px", borderRadius: 12, border: "1.5px solid var(--border)", background: "var(--bg)", color: "var(--text)", outline: "none", transition: "border-color 0.2s", fontFamily: "'Inter Tight', sans-serif" }} />
           </div>
         )}
         <div>
-          <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 8, color: "var(--text)" }}>Username</label>
+          <label style={{ display: "block", fontSize: 11, fontWeight: 700, marginBottom: 8, color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase" }}>Username</label>
           <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="min 8 characters" required minLength={8}
-            style={{ width: "100%", padding: "14px 16px", borderRadius: 12, border: "2px solid var(--border)", background: "var(--bg)", color: "var(--text)", outline: "none" }} />
+            style={{ width: "100%", padding: "14px 16px", borderRadius: 12, border: "1.5px solid var(--border)", background: "var(--bg)", color: "var(--text)", outline: "none", fontFamily: "'Inter Tight', sans-serif" }} />
         </div>
         <div>
-          <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 8, color: "var(--text)" }}>Password</label>
+          <label style={{ display: "block", fontSize: 11, fontWeight: 700, marginBottom: 8, color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase" }}>Password</label>
           <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="min 8 characters" required minLength={8}
-            style={{ width: "100%", padding: "14px 16px", borderRadius: 12, border: "2px solid var(--border)", background: "var(--bg)", color: "var(--text)", outline: "none" }} />
+            style={{ width: "100%", padding: "14px 16px", borderRadius: 12, border: "1.5px solid var(--border)", background: "var(--bg)", color: "var(--text)", outline: "none", fontFamily: "'Inter Tight', sans-serif" }} />
         </div>
         {error && <p style={{ color: "#ff5f56", fontSize: 13, fontWeight: 600, margin: 0 }}>{error}</p>}
         <button type="submit" disabled={loading} style={{
-          marginTop: 12, padding: "16px", borderRadius: 12, fontSize: 15, fontWeight: 900,
-          background: "var(--primary)", color: "#ffffff", border: "none", cursor: loading ? "not-allowed" : "pointer", 
-          opacity: loading ? 0.7 : 1, transition: "transform 0.2s",
-          boxShadow: "0 10px 30px rgba(153, 27, 27, 0.3)"
+          marginTop: 12, padding: "16px", borderRadius: 12, fontSize: 14, fontWeight: 700,
+          background: "var(--primary)", color: "#ffffff", border: "1.5px solid var(--ink)", cursor: loading ? "not-allowed" : "pointer", 
+          opacity: loading ? 0.7 : 1, transition: "transform 0.2s, box-shadow 0.2s",
+          boxShadow: "var(--shadow-sm)", fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase", letterSpacing: "0.05em"
         }}>
-          {loading ? "Loading..." : mode === "signin" ? "Sign In" : "Create Account"}
+          {loading ? "Loading..." : mode === "signin" ? "Sign In →" : "Create Account →"}
         </button>
       </form>
 
