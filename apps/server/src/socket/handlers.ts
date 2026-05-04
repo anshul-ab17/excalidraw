@@ -1,25 +1,32 @@
 import { WebSocket } from "ws";
+import {
+  WsJoinRoomSchema, WsDrawSchema, WsDrawLiveSchema,
+  WsEraseSchema, WsCursorSchema, WsClearSchema, WsChatSchema,
+} from "@repo/types";
 import { getRoomElements, clearRoomElements } from "../services/socket.service.js";
 import { CachedEntry } from "./types.js";
-import {
-  rooms, clients, roomCache,
-  pendingUpserts, pendingDeletes,
-  broadcast, broadcastAll,
-} from "./state.js";
+import { rooms, clients, roomCache, pendingUpserts, pendingDeletes, broadcast, broadcastAll } from "./state.js";
 
 export async function handleMessage(ws: WebSocket, raw: string) {
-  const msg = JSON.parse(raw);
+  if (raw.length > 512_000) return; // 512 KB hard cap on any single message
+
+  let msg: unknown;
+  try { msg = JSON.parse(raw); } catch { return; }
+
   const client = clients.get(ws);
   if (!client) return;
 
-  switch (msg.type) {
+  const type = (msg as Record<string, unknown>).type;
+
+  switch (type) {
     case "join_room": {
-      const roomId = String(msg.roomId);
+      const parsed = WsJoinRoomSchema.safeParse(msg);
+      if (!parsed.success) return;
+      const { roomId } = parsed.data;
       client.roomId = roomId;
       if (!rooms.has(roomId)) rooms.set(roomId, new Set());
       rooms.get(roomId)!.add(ws);
 
-      // Cold-start: load from DB only if room not already in memory
       if (!roomCache.has(roomId)) {
         const rows = await getRoomElements(parseInt(roomId));
         const cache = new Map<string, CachedEntry>();
@@ -36,7 +43,9 @@ export async function handleMessage(ws: WebSocket, raw: string) {
     }
 
     case "draw": {
-      const { element } = msg;
+      const parsed = WsDrawSchema.safeParse(msg);
+      if (!parsed.success) return;
+      const { element } = parsed.data;
       const { roomId } = client;
       if (!roomId) return;
       if (!roomCache.has(roomId)) roomCache.set(roomId, new Map());
@@ -48,15 +57,18 @@ export async function handleMessage(ws: WebSocket, raw: string) {
     }
 
     case "draw_live": {
-      const { element } = msg;
+      const parsed = WsDrawLiveSchema.safeParse(msg);
+      if (!parsed.success) return;
       const { roomId } = client;
       if (!roomId) return;
-      broadcast(roomId, ws, { type: "draw_live", element, userId: client.userId });
+      broadcast(roomId, ws, { type: "draw_live", element: parsed.data.element, userId: client.userId });
       break;
     }
 
     case "erase": {
-      const { elementIds } = msg;
+      const parsed = WsEraseSchema.safeParse(msg);
+      if (!parsed.success) return;
+      const { elementIds } = parsed.data;
       const { roomId } = client;
       if (!roomId) return;
       const cache = roomCache.get(roomId);
@@ -67,17 +79,20 @@ export async function handleMessage(ws: WebSocket, raw: string) {
     }
 
     case "cursor": {
-      const { x, y } = msg;
+      const parsed = WsCursorSchema.safeParse(msg);
+      if (!parsed.success) return;
       const { roomId } = client;
       if (!roomId) return;
       const now = Date.now();
       if (now - client.lastCursor < 33) return;
       client.lastCursor = now;
-      broadcast(roomId, ws, { type: "cursor", x, y, userId: client.userId });
+      broadcast(roomId, ws, { type: "cursor", x: parsed.data.x, y: parsed.data.y, userId: client.userId });
       break;
     }
 
     case "clear": {
+      const parsed = WsClearSchema.safeParse(msg);
+      if (!parsed.success) return;
       const { roomId } = client;
       if (!roomId) return;
       roomCache.set(roomId, new Map());
@@ -88,13 +103,14 @@ export async function handleMessage(ws: WebSocket, raw: string) {
     }
 
     case "chat": {
-      const { text } = msg;
+      const parsed = WsChatSchema.safeParse(msg);
+      if (!parsed.success) return;
       const { roomId } = client;
-      if (!roomId || !text?.trim()) return;
+      if (!roomId) return;
       const now = Date.now();
-      if (now - client.lastChat < 500) return; // rate limit: 1 msg per 500ms
+      if (now - client.lastChat < 500) return;
       client.lastChat = now;
-      broadcastAll(roomId, { type: "chat", text: text.trim(), userId: client.userId, ts: now });
+      broadcastAll(roomId, { type: "chat", text: parsed.data.text, userId: client.userId, ts: now });
       break;
     }
   }

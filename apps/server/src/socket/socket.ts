@@ -14,16 +14,17 @@ export function initSocketServer(server: Server) {
     if (!url) { ws.close(); return; }
 
     const token = new URLSearchParams(url.split("?")[1]).get("token") || "";
-    let decode: any;
+    let decoded: { userId: string };
     try {
-      decode = jwt.verify(token, JWT_SECRET);
+      const result = jwt.verify(token, JWT_SECRET);
+      if (typeof result === "string" || !result?.userId) { ws.close(); return; }
+      decoded = result as { userId: string };
     } catch {
       ws.close();
       return;
     }
-    if (typeof decode === "string" || !decode?.userId) { ws.close(); return; }
 
-    clients.set(ws, { userId: decode.userId, lastCursor: 0, lastChat: 0 });
+    clients.set(ws, { userId: decoded.userId, lastCursor: 0, lastChat: 0 });
 
     ws.on("message", async (data) => {
       try { await handleMessage(ws, data.toString()); }
