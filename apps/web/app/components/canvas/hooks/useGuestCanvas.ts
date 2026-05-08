@@ -49,6 +49,8 @@ export function useGuestCanvas() {
     strokeWidthRef: style.strokeWidthRef,
     roughnessRef: style.roughnessRef,
     opacityRef: style.opacityRef,
+    fontSizeRef: style.fontSizeRef,
+    fontFamilyRef: style.fontFamilyRef,
   });
 
   // BroadcastChannel setup — receive elements from other tabs
@@ -128,14 +130,26 @@ export function useGuestCanvas() {
         ctx.scale(z, z);
         hist.elementsRef.current.forEach(el =>
           renderElement(rc, ctx, el, imageCacheRef.current,
-            () => { /* image loaded — RAF will pick it up next frame */ },
+            () => { /* image loaded — RAF picking it up */ },
             roughCacheRef.current, pencilCacheRef.current)
         );
         if (draw.drawingElementRef.current) {
+          // Draw the active element with slightly more stable parameters if needed
           renderElement(rc, ctx, draw.drawingElementRef.current, imageCacheRef.current,
             undefined, roughCacheRef.current, pencilCacheRef.current);
         }
         ctx.restore();
+
+        // Eraser/Hand/Selection previews in screen space
+        const { x: mx, y: my } = zoom.mousePosRef.current;
+        if (draw.currentTool === "eraser") {
+          ctx.beginPath();
+          ctx.arc(mx, my, 10, 0, Math.PI * 2);
+          ctx.strokeStyle = ACCENT;
+          ctx.setLineDash([4, 4]);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
 
         // Selection overlay (drawn in screen space)
         const selId = draw.selectedIdRef.current;
@@ -190,6 +204,8 @@ export function useGuestCanvas() {
     strokeWidth: style.strokeWidth, setStrokeWidth: style.setStrokeWidth,
     roughness: style.roughness, setRoughness: style.setRoughness,
     opacity: style.opacity, setOpacity: style.setOpacity,
+    fontSize: style.fontSize, setFontSize: style.setFontSize,
+    fontFamily: style.fontFamily, setFontFamily: style.setFontFamily,
     // history
     history: hist.history, historyIdx: hist.historyIdx,
     undo: hist.undo, redo: hist.redo,

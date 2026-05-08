@@ -12,9 +12,19 @@ export function useZoomPan(
   const zoomRef = useRef(1);
   const isPanningRef = useRef(false);
   const panStartRef = useRef({ x: 0, y: 0 });
+  const mousePosRef = useRef({ x: 0, y: 0 });
 
   useEffect(() => { panOffsetRef.current = panOffset; }, [panOffset]);
   useEffect(() => { zoomRef.current = zoom; }, [zoom]);
+
+  // Track mouse position in screen space
+  useEffect(() => {
+    function onMove(e: MouseEvent) {
+      mousePosRef.current = { x: e.clientX, y: e.clientY };
+    }
+    window.addEventListener("mousemove", onMove);
+    return () => window.removeEventListener("mousemove", onMove);
+  }, []);
 
   // Resize canvas
   useEffect(() => {

@@ -18,12 +18,15 @@ interface Deps {
   strokeWidthRef: React.RefObject<number>;
   roughnessRef: React.RefObject<number>;
   opacityRef: React.RefObject<number>;
+  fontSizeRef: React.RefObject<number>;
+  fontFamilyRef: React.RefObject<string>;
 }
 
 export function useGuestDrawing({
   canvasRef, elementsRef, setElements, pushHistory,
   panOffsetRef, zoomRef, isPanningRef, panStartRef, setPanOffset, setIsPanning,
   strokeColorRef, bgColorRef, strokeWidthRef, roughnessRef, opacityRef,
+  fontSizeRef, fontFamilyRef,
 }: Deps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -60,9 +63,10 @@ export function useGuestDrawing({
     const el: ExcaliElement = {
       id: genId(), type: "text",
       x: textInput.x, y: textInput.y,
-      width: textInput.value.length * 10, height: 24,
+      width: textInput.value.length * (fontSizeRef.current! / 2), height: fontSizeRef.current! + 8,
       strokeColor: strokeColorRef.current!, backgroundColor: "transparent",
       strokeWidth: strokeWidthRef.current!, roughness: 0, opacity: opacityRef.current!,
+      fontSize: fontSizeRef.current!, fontFamily: fontFamilyRef.current!,
       seed: genSeed(), text: textInput.value,
     };
     const next = [...(elementsRef.current ?? []), el];
@@ -135,6 +139,7 @@ export function useGuestDrawing({
       strokeColor: strokeColorRef.current!, backgroundColor: bgColorRef.current!,
       strokeWidth: strokeWidthRef.current!, roughness: roughnessRef.current!,
       opacity: opacityRef.current!, seed: genSeed(),
+      fontSize: fontSizeRef.current!, fontFamily: fontFamilyRef.current!,
       points: tool === "pencil" ? [[cx, cy]] : undefined,
     };
     drawingElementRef.current = newEl;

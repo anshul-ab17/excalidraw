@@ -118,13 +118,15 @@ export function useRoomCanvas(slug: string) {
       strokeColor: style.strokeColorRef.current, backgroundColor: style.bgColorRef.current,
       strokeWidth: style.strokeWidthRef.current, roughness: style.roughnessRef.current,
       opacity: style.opacityRef.current, seed: genSeed(),
+      fontSize: style.fontSizeRef.current, fontFamily: style.fontFamilyRef.current,
       points: tool === "pencil" ? [[x, y]] : undefined,
     };
 
     if (tool === "text") {
       const text = prompt("Enter text:") || "";
       if (!text) return;
-      const finalEl = { ...newEl, text, width: text.length * 10, height: 24 };
+      const size = style.fontSizeRef.current;
+      const finalEl = { ...newEl, text, width: text.length * (size / 2), height: size + 8 };
       const newEls = [...hist.elementsRef.current, finalEl];
       hist.elementsRef.current = newEls;
       hist.setElements(newEls);
@@ -202,6 +204,8 @@ export function useRoomCanvas(slug: string) {
     strokeWidth: style.strokeWidth, setStrokeWidth: style.setStrokeWidth,
     roughness: style.roughness, setRoughness: style.setRoughness,
     opacity: style.opacity, setOpacity: style.setOpacity,
+    fontSize: style.fontSize, setFontSize: style.setFontSize,
+    fontFamily: style.fontFamily, setFontFamily: style.setFontFamily,
     history: hist.history, historyIdx: hist.historyIdx,
     undo: hist.undo, redo: hist.redo,
     cursors: socket.cursors, connected: socket.connected, copied,
