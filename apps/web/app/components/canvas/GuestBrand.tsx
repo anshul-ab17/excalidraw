@@ -18,7 +18,7 @@ export default function GuestBrand() {
       }}>
         <span style={{ width: 9, height: 9, borderRadius: "50%", background: ACCENT, boxShadow: "1.5px 1.5px 0 var(--ink, #15130F)", display: "inline-block", flexShrink: 0 }} />
         <span style={{ fontSize: 16, fontWeight: 700, fontFamily: "'Fraunces', serif", color: "var(--ink, #15130F)", letterSpacing: "-0.01em" }}>
-          Canvas
+          Canvex
         </span>
       </div>
     </Link>

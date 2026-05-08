@@ -69,17 +69,18 @@ export default function CanvasRoom({ slug }: { slug: string }) {
         onChatToggle={c.toggleChat}
         chatOpen={c.chatOpen}
         unreadCount={c.unreadCount}
-        darkMode={darkMode}
-        onThemeToggle={toggleDark}
       />
 
       {["rectangle", "diamond", "ellipse", "line", "arrow", "pencil", "text"].includes(c.currentTool) && (
         <StylePanel
+          currentTool={c.currentTool}
           strokeColor={c.strokeColor} bgColor={c.bgColor}
           strokeWidth={c.strokeWidth} roughness={c.roughness} opacity={c.opacity}
+          fontSize={c.fontSize} fontFamily={c.fontFamily}
           onStrokeColorChange={c.setStrokeColor} onBgColorChange={c.setBgColor}
           onStrokeWidthChange={c.setStrokeWidth} onRoughnessChange={c.setRoughness}
           onOpacityChange={c.setOpacity}
+          onFontSizeChange={c.setFontSize} onFontFamilyChange={c.setFontFamily}
         />
       )}
 
@@ -89,7 +90,7 @@ export default function CanvasRoom({ slug }: { slug: string }) {
         onUndo={c.undo} onRedo={c.redo}
       />
 
-      <RoomHeader slug={slug} />
+      <RoomHeader slug={slug} darkMode={darkMode} onThemeToggle={toggleDark} />
 
       <ChatPanel
         open={c.chatOpen}
@@ -111,9 +112,6 @@ export default function CanvasRoom({ slug }: { slug: string }) {
           onClearApiKey={() => { c.setUserApiKey(""); localStorage.removeItem("canvas_api_key"); }}
         />
       )}
-    </div>
-  );
-}
     </div>
   );
 }

@@ -66,6 +66,8 @@ export default function GuestCanvas() {
           textScreenY={c.textScreenY}
           strokeWidth={c.strokeWidth}
           strokeColor={c.strokeColor}
+          fontSize={c.fontSize}
+          fontFamily={c.fontFamily}
           onChange={value => c.setTextInput(prev => prev ? { ...prev, value } : null)}
           onCommit={c.commitText}
           onCancel={() => c.setTextInput(null)}
@@ -85,17 +87,19 @@ export default function GuestCanvas() {
         onDownload={c.downloadCanvas}
         onCopyLink={c.copyLink}
         copied={c.copied}
-        darkMode={darkMode}
-        onThemeToggle={toggleDark}
+        onChatToggle={() => alert("Global chat is coming soon to local rooms!")}
       />
 
       {["rectangle", "diamond", "ellipse", "line", "arrow", "pencil", "text"].includes(c.currentTool) && (
         <StylePanel
+          currentTool={c.currentTool}
           strokeColor={c.strokeColor} bgColor={c.bgColor}
           strokeWidth={c.strokeWidth} roughness={c.roughness} opacity={c.opacity}
+          fontSize={c.fontSize} fontFamily={c.fontFamily}
           onStrokeColorChange={c.setStrokeColor} onBgColorChange={c.setBgColor}
           onStrokeWidthChange={c.setStrokeWidth} onRoughnessChange={c.setRoughness}
           onOpacityChange={c.setOpacity}
+          onFontSizeChange={c.setFontSize} onFontFamilyChange={c.setFontFamily}
         />
       )}
 
@@ -112,6 +116,8 @@ export default function GuestCanvas() {
         isSignedIn={c.isSignedIn}
         onDashboard={c.goToDashboard}
         onSignIn={c.goToSignIn}
+        darkMode={darkMode}
+        onThemeToggle={toggleDark}
       />
 
       {c.showAiModal && (
