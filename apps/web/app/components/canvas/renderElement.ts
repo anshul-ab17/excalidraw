@@ -108,12 +108,21 @@ export function renderElement(
         if (cached && cached.len === len) {
           path = cached.path;
         } else {
-          const stroke = getStroke(el.points, { size: el.strokeWidth * 3, thinning: 0.5, smoothing: 0.5, streamline: 0.5 });
+          // size should be responsive to strokeWidth
+          const size = Math.max(1, el.strokeWidth * 1.5);
+          const stroke = getStroke(el.points, { 
+            size, 
+            thinning: 0.5, 
+            smoothing: 0.5, 
+            streamline: 0.5,
+            simulatePressure: true,
+          });
           path = new Path2D(getSvgPathFromStroke(stroke));
           pencilCache.set(el.id, { path, len });
         }
       } else {
-        const stroke = getStroke(el.points, { size: el.strokeWidth * 3, thinning: 0.5, smoothing: 0.5, streamline: 0.5 });
+        const size = Math.max(1, el.strokeWidth * 1.5);
+        const stroke = getStroke(el.points, { size, thinning: 0.5, smoothing: 0.5, streamline: 0.5, simulatePressure: true });
         path = new Path2D(getSvgPathFromStroke(stroke));
       }
       ctx.fillStyle = el.strokeColor;
@@ -121,11 +130,15 @@ export function renderElement(
       break;
     }
 
-    case "text":
-      ctx.font = `${16 + el.strokeWidth * 2}px "Segoe UI", sans-serif`;
+    case "text": {
+      const family = el.fontFamily || '"Segoe UI", sans-serif';
+      const size = el.fontSize || (16 + el.strokeWidth * 2);
+      ctx.font = `${size}px ${family}`;
       ctx.fillStyle = el.strokeColor;
-      ctx.fillText(el.text || "", el.x, el.y + 16);
+      ctx.textBaseline = "top";
+      ctx.fillText(el.text || "", el.x, el.y);
       break;
+    }
   }
   ctx.restore();
 }
