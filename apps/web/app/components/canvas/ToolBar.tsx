@@ -17,14 +17,12 @@ interface Props {
   onChatToggle?: () => void;
   chatOpen?: boolean;
   unreadCount?: number;
-  darkMode?: boolean;
-  onThemeToggle?: () => void;
 }
 
 export default function ToolBar({ 
   tools, currentTool, onToolChange, onImageInsert, onAiOpen, 
   onClear, onDownload, onCopyLink, copied,
-  onChatToggle, chatOpen, unreadCount, darkMode, onThemeToggle
+  onChatToggle, chatOpen, unreadCount
 }: Props) {
   return (
     <div style={{
@@ -61,10 +59,21 @@ export default function ToolBar({
         </>
       )}
 
-      {(onClear || onDownload || onCopyLink || onChatToggle || onThemeToggle) && (
+      {(onClear || onDownload || onCopyLink || onChatToggle) && (
         <>
           <div style={separator} />
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            {onChatToggle && (
+              <button onClick={onChatToggle} title="Room Chat" style={{ ...actionBtn, position: "relative", color: chatOpen ? ACCENT : INK }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                {unreadCount && unreadCount > 0 && !chatOpen && (
+                  <div style={{ position: "absolute", top: -2, right: -2, width: 8, height: 8, borderRadius: "50%", background: "#E84A3F", border: `1.5px solid ${INK}` }} />
+                )}
+              </button>
+            )}
+
+            <div style={{ width: 1, height: 16, background: "rgba(0,0,0,0.1)", margin: "0 4px" }} />
+
             {onClear && (
               <button onClick={onClear} title="Clear canvas" style={{ ...actionBtn, color: "#E84A3F" }}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
@@ -78,24 +87,6 @@ export default function ToolBar({
             {onCopyLink && (
               <button onClick={onCopyLink} title="Share" style={{ ...actionBtn, color: copied ? "#2E8A6A" : ACCENT }}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-              </button>
-            )}
-            
-            {onThemeToggle && (
-              <button onClick={onThemeToggle} title="Toggle Theme" style={actionBtn}>
-                {darkMode 
-                  ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-                  : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
-                }
-              </button>
-            )}
-
-            {onChatToggle && (
-              <button onClick={onChatToggle} title="Room Chat" style={{ ...actionBtn, position: "relative", color: chatOpen ? ACCENT : INK }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-                {unreadCount && unreadCount > 0 && !chatOpen && (
-                  <div style={{ position: "absolute", top: -2, right: -2, width: 8, height: 8, borderRadius: "50%", background: "#E84A3F", border: `1.5px solid ${INK}` }} />
-                )}
               </button>
             )}
           </div>
