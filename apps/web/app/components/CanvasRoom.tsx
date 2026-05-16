@@ -50,7 +50,7 @@ export default function CanvasRoom({ slug }: { slug: string }) {
 
   return (
     <div style={{
-      position: "fixed", inset: 0, overflow: "hidden", zIndex: 10,
+      position: "fixed", inset: 0, overflow: "hidden",
       background: darkMode ? "#15130F" : "#FBF8F1",
       transition: "background 0.3s ease"
     }}>
