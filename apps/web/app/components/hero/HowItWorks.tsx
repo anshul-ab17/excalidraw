@@ -22,10 +22,10 @@ export default function HowItWorks({ addReveal }: { addReveal: (el: Element | nu
   }, []);
 
   return (
-    <section id="how-it-works" style={{ position: "relative", zIndex: 5, padding: "120px 56px", background: "var(--paper-2)" }}>
+    <section id="how-it-works" style={{ position: "relative", zIndex: 5, minHeight: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", padding: "80px 56px", background: "var(--paper-2)" }}>
       <div style={{ maxWidth: 1320, margin: "0 auto" }}>
         <SectionTag num="003" label="How it works" addReveal={addReveal} />
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "end", marginBottom: 60 }}>
+        <div className="section-header-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "end", marginBottom: 60 }}>
           <h2 ref={addReveal} className="reveal" style={{ fontFamily: "'Fraunces',serif", fontWeight: 500, lineHeight: 0.9, letterSpacing: "-0.035em", margin: 0, color: "var(--ink)", fontSize: "clamp(40px,5.5vw,84px)" }}>
             From blank page to <em style={{ fontStyle: "italic", fontWeight: 400 }}>shipped diagram</em> in four steps.
           </h2>

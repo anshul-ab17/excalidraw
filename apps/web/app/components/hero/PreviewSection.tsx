@@ -1,16 +1,16 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { ACCENT, INK, PAPER3, INK_SOFT, AMBER, BLUE, GREEN, PINK, ACCENT3, ACCENT4, HardButton, SectionTag } from "./Common";
+import { ACCENT, INK, PAPER3, AMBER, BLUE, GREEN, PINK, ACCENT3, ACCENT4, HardButton, SectionTag } from "./Common";
 
 export default function PreviewSection({ addReveal }: { addReveal: (el: Element | null) => void }) {
   const router = useRouter();
 
   return (
-    <section style={{ position: "relative", zIndex: 5, padding: "120px 56px" }}>
+    <section style={{ position: "relative", zIndex: 5, minHeight: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", padding: "80px 56px" }}>
       <div style={{ maxWidth: 1320, margin: "0 auto" }}>
         <SectionTag num="002" label="A peek inside /canvas" addReveal={addReveal} />
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "end" }}>
+        <div className="section-header-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "end" }}>
           <h2 ref={addReveal} className="reveal" style={{ fontFamily: "'Fraunces',serif", fontWeight: 500, lineHeight: 0.9, letterSpacing: "-0.035em", margin: 0, color: "var(--ink)", fontSize: "clamp(40px,5.5vw,84px)" }}>
             The whiteboard, <em style={{ fontStyle: "italic", fontWeight: 400 }}>unboxed.</em>
           </h2>

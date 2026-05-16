@@ -33,18 +33,26 @@ export default function GuestCanvas() {
   const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
-    const isDark = document.documentElement.classList.contains("dark");
-    setDarkMode(isDark);
+    const saved = localStorage.getItem("canvas-theme");
+    const isDark = saved === "dark";
+    if (isDark) {
+      setDarkMode(true);
+      document.documentElement.setAttribute("data-theme", "dark");
+      document.documentElement.classList.add("dark");
+    }
   }, []);
 
   const toggleDark = () => {
-    setDarkMode(!darkMode);
-    document.documentElement.classList.toggle("dark");
+    const next = !darkMode;
+    setDarkMode(next);
+    document.documentElement.setAttribute("data-theme", next ? "dark" : "light");
+    document.documentElement.classList.toggle("dark", next);
+    localStorage.setItem("canvas-theme", next ? "dark" : "light");
   };
 
   return (
-    <div style={{ 
-      position: "fixed", inset: 0, overflow: "hidden",
+    <div style={{
+      position: "fixed", inset: 0, overflow: "hidden", zIndex: 10,
       background: darkMode ? "#15130F" : "#FBF8F1",
       transition: "background 0.3s ease"
     }}>
@@ -87,7 +95,7 @@ export default function GuestCanvas() {
         onDownload={c.downloadCanvas}
         onCopyLink={c.copyLink}
         copied={c.copied}
-        onChatToggle={() => alert("Global chat is coming soon to local rooms!")}
+        onChatToggle={() => c.isSignedIn ? c.goToDashboard() : c.goToSignIn()}
       />
 
       {["rectangle", "diamond", "ellipse", "line", "arrow", "pencil", "text"].includes(c.currentTool) && (

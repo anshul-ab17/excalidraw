@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { Tool } from "./canvas/types";
 import { useRoomCanvas } from "./canvas/hooks/useRoomCanvas";
 import ToolBar from "./canvas/ToolBar";
@@ -8,11 +7,12 @@ import RoomBottomBar from "./canvas/RoomBottomBar";
 import CursorOverlay from "./canvas/CursorOverlay";
 import RoomHeader from "./canvas/RoomHeader";
 import ChatPanel from "./canvas/ChatPanel";
-import { 
-  MousePointer2, Square, Diamond, Circle, Minus, MoveRight, 
+import TextEditor from "./canvas/TextEditor";
+import AiModal from "./canvas/AiModal";
+import {
+  MousePointer2, Square, Diamond, Circle, Minus, MoveRight,
   Pencil, Type, Eraser
 } from "lucide-react";
-import AiModal from "./canvas/AiModal";
 
 const ROOM_TOOLS: { id: Tool; icon: React.ReactNode; label: string }[] = [
   { id: "selection", icon: <MousePointer2 size={18} />, label: "Select" },
@@ -27,23 +27,30 @@ const ROOM_TOOLS: { id: Tool; icon: React.ReactNode; label: string }[] = [
 ];
 
 export default function CanvasRoom({ slug }: { slug: string }) {
-  const router = useRouter();
   const c = useRoomCanvas(slug);
   const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
-    const isDark = document.documentElement.classList.contains("dark");
-    setDarkMode(isDark);
+    const saved = localStorage.getItem("canvas-theme");
+    const isDark = saved === "dark";
+    if (isDark) {
+      setDarkMode(true);
+      document.documentElement.setAttribute("data-theme", "dark");
+      document.documentElement.classList.add("dark");
+    }
   }, []);
 
   const toggleDark = () => {
-    setDarkMode(!darkMode);
-    document.documentElement.classList.toggle("dark");
+    const next = !darkMode;
+    setDarkMode(next);
+    document.documentElement.setAttribute("data-theme", next ? "dark" : "light");
+    document.documentElement.classList.toggle("dark", next);
+    localStorage.setItem("canvas-theme", next ? "dark" : "light");
   };
 
   return (
-    <div style={{ 
-      position: "fixed", inset: 0, overflow: "hidden", 
+    <div style={{
+      position: "fixed", inset: 0, overflow: "hidden", zIndex: 10,
       background: darkMode ? "#15130F" : "#FBF8F1",
       transition: "background 0.3s ease"
     }}>
@@ -56,6 +63,22 @@ export default function CanvasRoom({ slug }: { slug: string }) {
       />
 
       <CursorOverlay cursors={c.cursors} />
+
+      {c.textInput && (
+        <TextEditor
+          textInput={c.textInput}
+          textScreenX={c.textScreenX}
+          textScreenY={c.textScreenY}
+          strokeWidth={c.strokeWidth}
+          strokeColor={c.strokeColor}
+          fontSize={c.fontSize}
+          fontFamily={c.fontFamily}
+          onChange={(value) => c.setTextInput((prev) => prev ? { ...prev, value } : null)}
+          onCommit={c.commitText}
+          onCancel={() => c.setTextInput(null)}
+          onDragStart={c.onTextBoxDragStart}
+        />
+      )}
 
       <ToolBar
         tools={ROOM_TOOLS}
@@ -86,7 +109,7 @@ export default function CanvasRoom({ slug }: { slug: string }) {
 
       <RoomBottomBar
         historyIdx={c.historyIdx} historyLength={c.history.length}
-        connected={c.connected}
+        connected={c.connected} reconnecting={c.reconnecting}
         onUndo={c.undo} onRedo={c.redo}
       />
 

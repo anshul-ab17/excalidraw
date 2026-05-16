@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import rough from "roughjs";
-import { STORAGE_KEY } from "../types";
+import { STORAGE_KEY, ACCENT } from "../types";
 import { drawSelectionOverlay } from "../canvasUtils";
 import { renderElement, RoughCache, PencilCache } from "../renderElement";
 import { useCanvasStyle } from "./useCanvasStyle";
@@ -23,7 +23,7 @@ export function useGuestCanvas() {
   // BroadcastChannel — syncs elements across tabs/windows in the same browser
   const bcRef = useRef<BroadcastChannel | null>(null);
   const tabId = useRef(Math.random().toString(36).slice(2));
-  const isBcReceivingRef = useRef(false);
+  const skipNextBcRef = useRef(false);
 
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -60,9 +60,8 @@ export function useGuestCanvas() {
     bcRef.current = bc;
     bc.onmessage = (e) => {
       if (e.data?.tabId === tabId.current) return; // ignore own echoes
-      isBcReceivingRef.current = true;
+      skipNextBcRef.current = true; // held true until the save effect consumes it
       hist.setElements(e.data.elements);
-      isBcReceivingRef.current = false;
     };
     return () => bc.close();
   }, []);
@@ -88,11 +87,30 @@ export function useGuestCanvas() {
   // Save to localStorage + broadcast to other tabs
   useEffect(() => {
     if (!loaded) return;
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(hist.elements)); } catch { }
-    // Don't re-broadcast what we just received from another tab
-    if (!isBcReceivingRef.current) {
-      bcRef.current?.postMessage({ tabId: tabId.current, elements: hist.elements });
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(hist.elements));
+    } catch (err) {
+      if (err instanceof DOMException && err.name === "QuotaExceededError") {
+        console.warn("[Canvas] localStorage quota exceeded — auto-save skipped.");
+        if (!document.getElementById("__canvas_quota_warn__")) {
+          const el = document.createElement("div");
+          el.id = "__canvas_quota_warn__";
+          el.textContent = "⚠ Storage full — drawing not saved. Clear some elements or download to keep your work.";
+          Object.assign(el.style, {
+            position: "fixed", bottom: "16px", left: "50%", transform: "translateX(-50%)",
+            background: "#E84A3F", color: "#fff", padding: "10px 18px", borderRadius: "8px",
+            fontSize: "13px", zIndex: "9999", pointerEvents: "none", boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+          });
+          document.body.appendChild(el);
+          setTimeout(() => el.remove(), 5000);
+        }
+      }
     }
+    if (skipNextBcRef.current) {
+      skipNextBcRef.current = false;
+      return;
+    }
+    bcRef.current?.postMessage({ tabId: tabId.current, elements: hist.elements });
   }, [hist.elements, loaded]);
 
   // RAF render loop — reads exclusively from refs, zero React re-render pressure
@@ -107,23 +125,10 @@ export function useGuestCanvas() {
         const z = zoom.zoomRef.current!;
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = "#FBF8F1";
+        const isDark = document.documentElement.classList.contains("dark") ||
+          document.documentElement.getAttribute("data-theme") === "dark";
+        ctx.fillStyle = isDark ? "#15130F" : "#FBF8F1";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        // Batched grid — single beginPath/stroke instead of one per line
-        const gridSize = 40 * z;
-        const ox = ((pan.x % gridSize) + gridSize) % gridSize;
-        const oy = ((pan.y % gridSize) + gridSize) % gridSize;
-        ctx.strokeStyle = "#e9ecef";
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        for (let x = ox - gridSize; x < canvas.width + gridSize; x += gridSize) {
-          ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height);
-        }
-        for (let y = oy - gridSize; y < canvas.height + gridSize; y += gridSize) {
-          ctx.moveTo(0, y); ctx.lineTo(canvas.width, y);
-        }
-        ctx.stroke();
 
         ctx.save();
         ctx.translate(pan.x, pan.y);

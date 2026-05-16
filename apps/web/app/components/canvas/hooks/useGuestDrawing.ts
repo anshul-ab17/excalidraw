@@ -232,10 +232,25 @@ export function useGuestDrawing({
   function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      alert("Only image files are supported.");
+      e.target.value = "";
+      return;
+    }
+    const MAX_BYTES = 5 * 1024 * 1024; // 5 MB
+    if (file.size > MAX_BYTES) {
+      alert("Image must be smaller than 5 MB.");
+      e.target.value = "";
+      return;
+    }
+
     const reader = new FileReader();
+    reader.onerror = () => { alert("Failed to read the selected file."); e.target.value = ""; };
     reader.onload = (ev) => {
       const dataUrl = ev.target?.result as string;
       const img = new Image();
+      img.onerror = () => { alert("Failed to load the selected image. The file may be corrupt."); };
       img.onload = () => {
         const maxW = 400, maxH = 300;
         let w = img.width, h = img.height;

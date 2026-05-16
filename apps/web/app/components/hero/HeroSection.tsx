@@ -95,8 +95,8 @@ export default function HeroSection({ scrollTo }: { scrollTo: (id: string) => vo
   }, []);
 
   return (
-    <section style={{ position: "relative", minHeight: "100vh", paddingTop: 100, overflow: "hidden" }}>
-      <div style={{ position: "relative", height: "calc(100vh - 100px)", display: "grid", gridTemplateColumns: "1.05fr 1fr", alignItems: "center", padding: "20px 56px 80px", gap: 32, zIndex: 5 }}>
+    <section style={{ position: "relative", height: "100vh", overflow: "hidden" }}>
+      <div className="hero-main-grid" style={{ position: "relative", height: "100%", display: "grid", gridTemplateColumns: "1.05fr 1fr", alignItems: "center", padding: "80px 56px 60px", gap: 32, zIndex: 5 }}>
 
         {/* Left copy */}
         <div style={{ position: "relative", zIndex: 6 }}>
@@ -139,7 +139,7 @@ export default function HeroSection({ scrollTo }: { scrollTo: (id: string) => vo
         </div>
 
         {/* Right: 3D scene */}
-        <section ref={stageRef} className="hero-stage" style={{ cursor: "grab", userSelect: "none" }}>
+        <section ref={stageRef} className="hero-stage hero-3d-scene" style={{ cursor: "grab", userSelect: "none" }}>
           <div ref={sceneRef} className="hero-scene">
 
             {/* L0 — main canvas card (depth -180) */}

@@ -30,7 +30,7 @@ export default function Navbar({ scrolled, isLoggedIn, darkMode, toggleDark, scr
         Canvas
       </button>
 
-      <nav style={{ display: "flex", gap: 28 }}>
+      <nav className="nav-links" style={{ display: "flex", gap: 28 }}>
         <NavBtn label="Canvas" onClick={() => router.push("/canvas")} />
         <NavBtn label="How it works" onClick={() => scrollTo("how-it-works")} />
         <NavBtn label="Dashboard" onClick={() => router.push("/dashboard")} />
@@ -41,22 +41,7 @@ export default function Navbar({ scrolled, isLoggedIn, darkMode, toggleDark, scr
           <span style={{ width: 7, height: 7, borderRadius: "50%", background: ACCENT4, display: "inline-block", animation: "pulse 1.8s infinite" }} />
         </span>
         
-        <button
-          title="Global Chat"
-          onClick={() => router.push("/canvas/global")}
-          style={{
-            width: 36, height: 36, borderRadius: "50%",
-            border: "1px solid var(--ink)", background: "transparent",
-            display: "grid", placeItems: "center", cursor: "pointer",
-            color: "var(--ink)", transition: "all 0.3s"
-          }}
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
-          </svg>
-        </button>
-
-        {isLoggedIn
+{isLoggedIn
           ? <NavBtn label="Dashboard →" onClick={() => router.push("/dashboard")} />
           : <NavBtn label="Sign in →" onClick={() => router.push("/signin")} />}
 

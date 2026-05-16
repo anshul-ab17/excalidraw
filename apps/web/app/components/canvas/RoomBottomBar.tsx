@@ -6,12 +6,13 @@ interface Props {
   historyIdx: number;
   historyLength: number;
   connected: boolean;
+  reconnecting?: boolean;
   onUndo: () => void;
   onRedo: () => void;
 }
 
 export default function RoomBottomBar({
-  historyIdx, historyLength, connected,
+  historyIdx, historyLength, connected, reconnecting,
   onUndo, onRedo,
 }: Props) {
   return (
@@ -46,7 +47,7 @@ export default function RoomBottomBar({
             background: connected ? "#2E8A6A" : ACCENT, 
             boxShadow: connected ? "0 0 8px #2E8A6A" : "none" 
           }} />
-          {connected ? "LIVE" : "OFFLINE"}
+          {connected ? "LIVE" : reconnecting ? "RECONNECTING…" : "OFFLINE"}
         </div>
       </div>
 

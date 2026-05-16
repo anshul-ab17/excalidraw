@@ -1,4 +1,5 @@
-import { ACCENT, INK } from "./types";
+import { ACCENT } from "./types";
+import { INK } from "./styles";
 import { Sun, Moon } from "lucide-react";
 
 interface Props {

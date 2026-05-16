@@ -207,6 +207,22 @@ html[data-theme="dark"] .grain {
   border: 1px solid #15130F;
 }
 
+html[data-theme="dark"] .canvas-card {
+  /* keep paper-3 light so SVG fill="var(--paper-3)" stays cream */
+  --paper-3: #FBF8F1;
+  box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.65), 0 4px 0 rgba(0, 0, 0, 0.8);
+}
+
+html[data-theme="dark"] .canvas-card .card-head {
+  background: rgba(251, 248, 241, 0.92);
+}
+
+html[data-theme="dark"] .canvas-preview-wrap {
+  /* keep canvas preview light — it's a canvas mockup, always on paper */
+  --paper-3: #FBF8F1;
+  box-shadow: 12px 12px 0 rgba(0, 0, 0, 0.6);
+}
+
 /*  Palette / toolbar  */
 .palette-panel {
   background: #FBF8F1;
@@ -713,5 +729,102 @@ input:focus {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* ================================================================
+   Responsive — hero page breakpoints
+   ================================================================ */
+
+/* Tablet: ≤ 1024px */
+@media (max-width: 1024px) {
+  .hero-main-grid {
+    grid-template-columns: 1fr !important;
+    padding: 80px 36px 48px !important;
+  }
+
+  .hero-3d-scene {
+    display: none !important;
+  }
+
+  .section-header-grid {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .feature-wide {
+    grid-column: span 2 !important;
+  }
+
+  .footer-grid {
+    grid-template-columns: 1fr !important;
+    gap: 32px !important;
+  }
+
+  .canvas-preview-wrap {
+    margin-top: 32px !important;
+  }
+}
+
+/* Mobile: ≤ 640px */
+@media (max-width: 640px) {
+  .hero-main-grid {
+    padding: 70px 20px 40px !important;
+  }
+
+  /* all hero sections */
+  section[style*="min-height: 100vh"],
+  section[style*="minHeight"] {
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+    padding-top: 60px !important;
+    padding-bottom: 60px !important;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .feature-wide {
+    grid-column: span 1 !important;
+  }
+
+  .footer-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .footer-bottom {
+    flex-direction: column !important;
+    gap: 6px !important;
+    align-items: flex-start !important;
+  }
+
+  .nav-links {
+    display: none !important;
+  }
+
+  /* hero stage — ensure left copy fills screen */
+  .hero-main-grid > *:first-child {
+    max-width: 100% !important;
+  }
+
+  /* how-it-works step cards */
+  #how-it-works [style*="flex-direction: row"] {
+    flex-direction: column !important;
+  }
+
+  #how-it-works [style*="width: 240px"] {
+    width: 100% !important;
+    height: 120px !important;
+  }
+
+  /* footer padding */
+  footer {
+    padding-left: 20px !important;
+    padding-right: 20px !important;
   }
 }

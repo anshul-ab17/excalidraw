@@ -2,10 +2,12 @@
 import { useEffect, useRef, useState } from "react";
 import rough from "roughjs";
 import { ExcaliElement, Tool } from "../types";
+import { TextInputState } from "../types";
 import { genId, genSeed } from "../canvasUtils";
 import { renderElement, RoughCache, PencilCache } from "../renderElement";
 import { useCanvasStyle } from "./useCanvasStyle";
 import { useCanvasHistory } from "./useCanvasHistory";
+import { useZoomPan } from "./useZoomPan";
 import { useAiDiagram } from "./useAiDiagram";
 import { useRoomSocket } from "./useRoomSocket";
 
@@ -18,14 +20,18 @@ export function useRoomCanvas(slug: string) {
 
   const [currentTool, setCurrentTool] = useState<Tool>("rectangle");
   const [copied, setCopied] = useState(false);
+  const [textInput, setTextInput] = useState<TextInputState | null>(null);
+
   const toolRef = useRef<Tool>("rectangle");
   const isDrawingRef = useRef(false);
   const drawingElementRef = useRef<ExcaliElement | null>(null);
+  const textDragRef = useRef<{ startMouseX: number; startMouseY: number; startCanvasX: number; startCanvasY: number } | null>(null);
 
   useEffect(() => { toolRef.current = currentTool; }, [currentTool]);
 
   const style = useCanvasStyle();
   const hist = useCanvasHistory();
+  const zoom = useZoomPan(canvasRef, () => { rcRef.current = null; });
   const ai = useAiDiagram({
     elementsRef: hist.elementsRef,
     pushHistory: hist.pushHistory,
@@ -46,18 +52,18 @@ export function useRoomCanvas(slug: string) {
         if (!rcRef.current) rcRef.current = rough.canvas(canvas);
         const rc = rcRef.current;
         const ctx = canvas.getContext("2d")!;
+        const pan = zoom.panOffsetRef.current!;
+        const z = zoom.zoomRef.current!;
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = "#FBF8F1";
+        const isDark = document.documentElement.classList.contains("dark") ||
+          document.documentElement.getAttribute("data-theme") === "dark";
+        ctx.fillStyle = isDark ? "#15130F" : "#FBF8F1";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        ctx.strokeStyle = "#E8E0D0";
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        for (let x = 0; x < canvas.width; x += 40) { ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); }
-        for (let y = 0; y < canvas.height; y += 40) { ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); }
-        ctx.stroke();
-
+        ctx.save();
+        ctx.translate(pan.x, pan.y);
+        ctx.scale(z, z);
         hist.elementsRef.current.forEach((el) =>
           renderElement(rc, ctx, el, undefined, undefined, roughCacheRef.current, pencilCacheRef.current)
         );
@@ -66,6 +72,7 @@ export function useRoomCanvas(slug: string) {
         );
         if (drawingElementRef.current)
           renderElement(rc, ctx, drawingElementRef.current, undefined, undefined, roughCacheRef.current, pencilCacheRef.current);
+        ctx.restore();
       }
       rafRef.current = requestAnimationFrame(loop);
     }
@@ -73,28 +80,64 @@ export function useRoomCanvas(slug: string) {
     return () => cancelAnimationFrame(rafRef.current);
   }, []);
 
-  // Resize canvas
-  useEffect(() => {
-    function resize() {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      rcRef.current = null;
-    }
-    resize();
-    window.addEventListener("resize", resize);
-    return () => window.removeEventListener("resize", resize);
-  }, []);
-
-  function getCoords(e: React.MouseEvent<HTMLCanvasElement>) {
+  function getCanvasCoords(e: React.MouseEvent<HTMLCanvasElement>) {
     const rect = canvasRef.current!.getBoundingClientRect();
-    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    return {
+      x: (e.clientX - rect.left - zoom.panOffsetRef.current!.x) / zoom.zoomRef.current!,
+      y: (e.clientY - rect.top - zoom.panOffsetRef.current!.y) / zoom.zoomRef.current!,
+    };
+  }
+
+  function commitText() {
+    if (!textInput || !textInput.value.trim()) { setTextInput(null); return; }
+    const size = style.fontSizeRef.current;
+    const el: ExcaliElement = {
+      id: genId(), type: "text",
+      x: textInput.x, y: textInput.y,
+      width: textInput.value.length * (size / 2), height: size + 8,
+      strokeColor: style.strokeColorRef.current, backgroundColor: "transparent",
+      strokeWidth: style.strokeWidthRef.current, roughness: 0,
+      opacity: style.opacityRef.current, seed: genSeed(),
+      fontSize: size, fontFamily: style.fontFamilyRef.current,
+      text: textInput.value,
+    };
+    const newEls = [...hist.elementsRef.current, el];
+    hist.elementsRef.current = newEls;
+    hist.setElements(newEls);
+    socket.sendDraw(el);
+    hist.pushHistory(newEls);
+    setTextInput(null);
+  }
+
+  function onTextBoxDragStart(e: React.MouseEvent) {
+    e.preventDefault();
+    if (!textInput) return;
+    textDragRef.current = {
+      startMouseX: e.clientX, startMouseY: e.clientY,
+      startCanvasX: textInput.x, startCanvasY: textInput.y,
+    };
+    function onMove(ev: MouseEvent) {
+      if (!textDragRef.current) return;
+      const dx = (ev.clientX - textDragRef.current.startMouseX) / zoom.zoomRef.current!;
+      const dy = (ev.clientY - textDragRef.current.startMouseY) / zoom.zoomRef.current!;
+      setTextInput((prev) =>
+        prev ? { ...prev, x: textDragRef.current!.startCanvasX + dx, y: textDragRef.current!.startCanvasY + dy } : null
+      );
+    }
+    function onUp() {
+      textDragRef.current = null;
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    }
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
   }
 
   function onMouseDown(e: React.MouseEvent<HTMLCanvasElement>) {
     if (e.button !== 0) return;
-    const { x, y } = getCoords(e);
+    if (textInput) { commitText(); return; }
+
+    const { x, y } = getCanvasCoords(e);
     const tool = toolRef.current;
 
     if (tool === "eraser") {
@@ -112,6 +155,11 @@ export function useRoomCanvas(slug: string) {
       return;
     }
 
+    if (tool === "text") {
+      setTextInput({ x, y, value: "" });
+      return;
+    }
+
     const newEl: ExcaliElement = {
       id: genId(), type: tool,
       x, y, width: 0, height: 0,
@@ -122,25 +170,12 @@ export function useRoomCanvas(slug: string) {
       points: tool === "pencil" ? [[x, y]] : undefined,
     };
 
-    if (tool === "text") {
-      const text = prompt("Enter text:") || "";
-      if (!text) return;
-      const size = style.fontSizeRef.current;
-      const finalEl = { ...newEl, text, width: text.length * (size / 2), height: size + 8 };
-      const newEls = [...hist.elementsRef.current, finalEl];
-      hist.elementsRef.current = newEls;
-      hist.setElements(newEls);
-      socket.sendDraw(finalEl);
-      hist.pushHistory(newEls);
-      return;
-    }
-
     drawingElementRef.current = newEl;
     isDrawingRef.current = true;
   }
 
   function onMouseMove(e: React.MouseEvent<HTMLCanvasElement>) {
-    const { x, y } = getCoords(e);
+    const { x, y } = getCanvasCoords(e);
     socket.sendCursor(x, y);
     if (!isDrawingRef.current || !drawingElementRef.current) return;
     const el = drawingElementRef.current;
@@ -196,6 +231,9 @@ export function useRoomCanvas(slug: string) {
     currentTool === "text" ? "text" :
     currentTool === "selection" ? "default" : "crosshair";
 
+  const textScreenX = textInput ? textInput.x * zoom.zoom + zoom.panOffset.x : 0;
+  const textScreenY = textInput ? textInput.y * zoom.zoom + zoom.panOffset.y : 0;
+
   return {
     canvasRef,
     currentTool, setCurrentTool,
@@ -208,7 +246,7 @@ export function useRoomCanvas(slug: string) {
     fontFamily: style.fontFamily, setFontFamily: style.setFontFamily,
     history: hist.history, historyIdx: hist.historyIdx,
     undo: hist.undo, redo: hist.redo,
-    cursors: socket.cursors, connected: socket.connected, copied,
+    cursors: socket.cursors, connected: socket.connected, reconnecting: socket.reconnecting, copied,
     chatMessages: socket.chatMessages, unreadCount: socket.unreadCount,
     chatOpen: socket.chatOpen, toggleChat: socket.toggleChat, sendChat: socket.sendChat,
     showAiModal: ai.showAiModal, setShowAiModal: ai.setShowAiModal,
@@ -218,6 +256,8 @@ export function useRoomCanvas(slug: string) {
     userApiKey: ai.userApiKey, setUserApiKey: ai.setUserApiKey,
     showApiKey: ai.showApiKey, setShowApiKey: ai.setShowApiKey,
     generateDiagram: ai.generateDiagram,
+    textInput, setTextInput, commitText, onTextBoxDragStart,
+    textScreenX, textScreenY,
     onMouseDown, onMouseMove, onMouseUp,
     clearCanvas, downloadCanvas, copyLink,
     cursor,
