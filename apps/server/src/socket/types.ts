@@ -8,6 +8,7 @@ export type ClientState = {
   roomId?: string;
   lastCursor: number;
   lastChat: number;
+  lastDrawLive: number;
 };
 
 export type CachedEntry = {

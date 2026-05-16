@@ -3,7 +3,9 @@ import {
   WsJoinRoomSchema, WsDrawSchema, WsDrawLiveSchema,
   WsEraseSchema, WsCursorSchema, WsClearSchema, WsChatSchema,
 } from "@repo/types";
+import { ExcaliElement } from "@repo/types";
 import { getRoomElements, clearRoomElements } from "../services/socket.service.js";
+import { prisma } from "@repo/db/client";
 import { CachedEntry } from "./types.js";
 import { rooms, clients, roomCache, pendingUpserts, pendingDeletes, broadcast, broadcastAll } from "./state.js";
 
@@ -31,7 +33,7 @@ export async function handleMessage(ws: WebSocket, raw: string) {
         const rows = await getRoomElements(parseInt(roomId));
         const cache = new Map<string, CachedEntry>();
         rows.forEach((r) =>
-          cache.set(r.id, { element: JSON.parse(r.data), userId: r.userId ?? "unknown" })
+          cache.set(r.id, { element: r.data as unknown as ExcaliElement, userId: r.userId ?? "unknown" })
         );
         roomCache.set(roomId, cache);
       }
@@ -61,6 +63,9 @@ export async function handleMessage(ws: WebSocket, raw: string) {
       if (!parsed.success) return;
       const { roomId } = client;
       if (!roomId) return;
+      const now = Date.now();
+      if (now - client.lastDrawLive < 16) return; // 60fps cap server-side
+      client.lastDrawLive = now;
       broadcast(roomId, ws, { type: "draw_live", element: parsed.data.element, userId: client.userId });
       break;
     }
@@ -110,6 +115,10 @@ export async function handleMessage(ws: WebSocket, raw: string) {
       const now = Date.now();
       if (now - client.lastChat < 500) return;
       client.lastChat = now;
+      // Persist chat to DB (fire-and-forget — don't block broadcast)
+      prisma.chat.create({
+        data: { roomId: parseInt(roomId), userId: client.userId, message: parsed.data.text },
+      }).catch((err) => console.error("[DB] chat save error:", err));
       broadcastAll(roomId, { type: "chat", text: parsed.data.text, userId: client.userId, ts: now });
       break;
     }

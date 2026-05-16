@@ -1,4 +1,5 @@
 import { prisma } from "@repo/db/client";
+import { ExcaliElement } from "@repo/types";
 
 export async function getRoomElements(roomId: number) {
   return prisma.element.findMany({
@@ -10,13 +11,14 @@ export async function upsertElement(
   id: string,
   roomId: number,
   type: string,
-  data: string,
+  data: ExcaliElement,
   userId: string
 ) {
+  const json = data as any;
   return prisma.element.upsert({
     where: { id },
-    create: { id, roomId, type, data, userId },
-    update: { data },
+    create: { id, roomId, type, data: json, userId },
+    update: { data: json },
   });
 }
 
