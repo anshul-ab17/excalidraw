@@ -69,6 +69,7 @@ export function useZoomPan(
     panOffset, setPanOffset, panOffsetRef,
     zoom, zoomRef,
     isPanning, setIsPanning, isPanningRef, panStartRef,
+    mousePosRef,
     doZoom,
   };
 }
